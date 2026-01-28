@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CROWFORZA - Tu tienda de herramientas manuales de calidad profesional">
+    <title>CROWFORZA | Herramientas Manuales Profesionales</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="#" class="nav__logo">
+                <span class="logo-crow">CROW</span><span class="logo-forza">FORZA</span>
+                <img src="assets/logo-crowforza.jpg" alt="CROWFORZA Logo" class="logo-icon">
+            </a>
+
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li class="nav__item">
+                        <a href="#home" class="nav__link active">Inicio</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#catalog" class="nav__link">Catálogo</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#categories" class="nav__link">Categorías</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#about" class="nav__link">Nosotros</a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="#contact" class="nav__link">Contacto</a>
+                    </li>
+                </ul>
+
+                <div class="nav__close" id="nav-close">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            </div>
+
+            <div class="nav__actions">
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+
+                <!-- Cart -->
+                <button class="cart-btn" id="cart-btn">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </button>
+
+                <!-- Mobile Toggle -->
+                <div class="nav__toggle" id="nav-toggle">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Search Bar -->
+        <div class="search-container container">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="search-input" 
+                    placeholder="Buscar herramientas, marcas, categorías..."
+                    autocomplete="off"
+                >
+                <button class="search-clear" id="search-clear" style="display: none;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button class="search-btn" id="search-btn">Buscar</button>
+            </div>
+            <!-- Search Results Dropdown -->
+            <div class="search-results" id="search-results"></div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <!-- Video de fondo -->
+            <div class="hero__video-container">
+                <video class="hero__video" id="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1504917595217-d4dc5ebb6f71?w=1920">
+                    <!-- Video local (preferido) -->
+                    <source src="assets/hero-video.mp4" type="video/mp4">
+                    <!-- Fallback a video online de Pexels -->
+                    <source src="https://videos.pexels.com/video-files/5532771/5532771-sd_640_360_25fps.mp4" type="video/mp4">
+                </video>
+                <div class="hero__video-overlay"></div>
+                <!-- Imagen de respaldo animada si el video no carga -->
+                <div class="hero__fallback-bg"></div>
+            </div>
+            <div class="hero__container container">
+                <div class="hero__content">
+                    <h1 class="hero__title hero__title--large">
+                        La Fuerza que 
+                        <span class="highlight">Impulsa</span> 
+                        tu Industria
+                    </h1>
+                    
+                    <!-- Botones debajo del título -->
+                    <div class="hero__buttons">
+                        <a href="#catalog" class="btn btn--primary">
+                            <i class="fa-solid fa-tools"></i>
+                            Ver Catálogo
+                        </a>
+                        <a href="#about" class="btn btn--outline">
+                            Conocer Más
+                        </a>
+                    </div>
+                    
+                    <!-- Marcas destacadas -->
+                    <p class="hero__brands-title">Trabajamos con las mejores marcas</p>
+                    <div class="brands-grid">
+                        <div class="brand-card" data-brand="cat">
+                            <img src="https://s7d2.scene7.com/is/image/Caterpillar/CM20200219-db34e-f70d2?fmt=png-alpha" alt="CAT" class="brand-logo">
+                        </div>
+                        <div class="brand-card" data-brand="bosch">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Bosch-logo.svg/200px-Bosch-logo.svg.png" alt="BOSCH" class="brand-logo">
+                        </div>
+                        <div class="brand-card" data-brand="makita">
+                            <img src="https://www.wmv-dresden.de/wp-content/uploads/2016/12/makita_logo.png" alt="MAKITA" class="brand-logo">
+                        </div>
+                        <div class="brand-card" data-brand="sata">
+                            <img src="https://www.sata.com.co/themes/custom/sata/icons/logo.svg" alt="SATA" class="brand-logo">
+                        </div>
+                        <div class="brand-card" data-brand="bahco">
+                            <img src="https://static.bahco.com/static/version1766566234/frontend/On4u/newbahco/es_AR/images/logo.svg" alt="BAHCO" class="brand-logo">
+                        </div>
+                        <div class="brand-card" data-brand="milwaukee">
+                            <img src="https://www.milwaukeetool.com/--/web-images/sc/0242a505cb7b4d8197adbec908c139c2?hash=7dea362b3fac8e00956a4952a3d4f474&lang=es-US&mw=267" alt="MILWAUKEE" class="brand-logo">
+                        </div>
+                        <div class="brand-card" data-brand="dewalt">
+                            <img src="https://www.dewalt.com/sites/g/files/xnuzat961/files/dewalt2024_logo.png" alt="DEWALT" class="brand-logo">
+                        </div>
+                        <div class="brand-card" data-brand="bremen">
+                            <img src="https://bremenar.vtexassets.com/assets/vtex.file-manager-graphql/images/46cf5dcb-d1ef-4d79-951e-d9bec9200bca___17d331b38fd56dc525d7f194538ae44a.png" alt="BREMEN" class="brand-logo">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero__wave">
+                <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="currentColor"/>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <div class="features__grid">
+                    <div class="feature-card">
+                        <div class="feature-card__icon">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <h3 class="feature-card__title">Envío Rápido</h3>
+                        <p class="feature-card__text">Entrega en 24-48h en toda España</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card__icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="feature-card__title">Garantía Total</h3>
+                        <p class="feature-card__text">2 años de garantía en todos los productos</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card__icon">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <h3 class="feature-card__title">Soporte 24/7</h3>
+                        <p class="feature-card__text">Atención al cliente todos los días</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-card__icon">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </div>
+                        <h3 class="feature-card__title">Devolución Fácil</h3>
+                        <p class="feature-card__text">30 días para cambios y devoluciones</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about section" id="about">
+            <div class="container">
+                <!-- Header con Badge -->
+                <div class="about__header">
+                    <div class="about__badge">
+                        <span class="about__badge-number">15+</span>
+                        <span class="about__badge-text">Años de Trayectoria</span>
+                    </div>
+                    <div class="about__header-text">
+                        <span class="section__subtitle">Nuestra Historia</span>
+                        <h2 class="section__title">Forjados en la Resiliencia, Guiados por la Convicción</h2>
+                    </div>
+                </div>
+                
+                <div class="about__grid">
+                    <div class="about__images">
+                        <!-- Slideshow de imágenes industriales -->
+                        <div class="about__slideshow" id="about-slideshow">
+                            <div class="about__slide active">
+                                <img src="https://media.istockphoto.com/id/517722529/es/foto/trabajador-de-la-construcci%C3%B3n-con-perforator.webp?s=1024x1024&w=is&k=20&c=XtNoboqG_Xm9FUjUSILH6keyRwTnAcpnpDlv1l779eU=" alt="Trabajo industrial">
+                            </div>
+                            
+                            <div class="about__slide">
+                                <img src="https://img.freepik.com/fotos-premium/hombre-elige-herramienta-electrica-ferreteria_255667-83941.jpg" alt="Industria metalúrgica">
+                            </div>
+                            
+                        </div>
+                        <!-- Indicadores del slideshow -->
+                        <div class="about__slideshow-indicators">
+                            <span class="about__indicator active" data-slide="0"></span>
+                            <span class="about__indicator" data-slide="1"></span>
+                            <span class="about__indicator" data-slide="2"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="about__content">
+                        <p class="about__text about__text--highlight">
+                            <strong>CROWFORZA</strong> nació de una convicción inquebrantable: que la verdadera fuerza 
+                            de una industria reside en las herramientas que la construyen. Como el cuervo que nos 
+                            representa, hemos aprendido a adaptarnos, a persistir y a volar más alto ante cada desafío.
+                        </p>
+                        <p class="about__text">
+                            Durante más de 15 años, hemos sido el aliado leal de profesionales en <strong>siderurgia, 
+                            metalurgia, minería, sector petrolero y agroindustria</strong>. Cada golpe de martillo, 
+                            cada tuerca ajustada, cada proyecto completado con nuestras herramientas representa 
+                            nuestra promesa cumplida de calidad y durabilidad.
+                        </p>
+                        <p class="about__text">
+                            No somos solo proveedores, somos <strong>compañeros de batalla</strong> en el día a día 
+                            de quienes construyen el futuro. Nuestra lealtad hacia nuestros clientes se refleja en 
+                            cada producto que seleccionamos: herramientas que resisten, que no fallan cuando más 
+                            se necesitan, que están ahí turno tras turno.
+                        </p>
+                        
+                        <ul class="about__list">
+                            <li>
+                                <i class="fa-solid fa-fire"></i>
+                                Resiliencia probada en los sectores más exigentes
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-handshake"></i>
+                                Lealtad inquebrantable hacia cada cliente
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-medal"></i>
+                                Convicción en ofrecer solo lo mejor
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-industry"></i>
+                                Expertos en soluciones industriales
+                            </li>
+                        </ul>
+
+                        <div class="about__cta">
+                            <a href="#contact" class="btn btn--primary">
+                                <i class="fa-solid fa-envelope"></i>
+                                Únete a Nuestra Historia
+                            </a>
+                            <a href="#catalog" class="btn btn--outline">
+                                <i class="fa-solid fa-tools"></i>
+                                Ver Catálogo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="categories section" id="categories">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">Explora Nuestras</span>
+                    <h2 class="section__title">Categorías</h2>
+                </div>
+
+                <div class="categories__grid">
+                    <div class="category-card" data-category="martillos">
+                        <div class="category-card__image">
+                            <img src="https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=400" alt="Martillos">
+                            <div class="category-card__overlay"></div>
+                        </div>
+                        <div class="category-card__content">
+                            <i class="fa-solid fa-hammer"></i>
+                            <h3>Martillos</h3>
+                            <span>45 productos</span>
+                        </div>
+                    </div>
+
+                    <div class="category-card" data-category="destornilladores">
+                        <div class="category-card__image">
+                            <img src="https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1644336193-craftsman-cmht65618v-1644336184.jpg?crop=1xw:1xh;center,top&resize=980:*" alt="Destornilladores">
+                            <div class="category-card__overlay"></div>
+                        </div>
+                        <div class="category-card__content">
+                            <i class="fa-solid fa-screwdriver"></i>
+                            <h3>Destornilladores</h3>
+                            <span>78 productos</span>
+                        </div>
+                    </div>
+
+                    <div class="category-card" data-category="llaves">
+                        <div class="category-card__image">
+                            <img src="https://media.knova.com.mx/products/10482@2x.jpg?t=inicial" alt="Llaves">
+                            <div class="category-card__overlay"></div>
+                        </div>
+                        <div class="category-card__content">
+                            <i class="fa-solid fa-wrench"></i>
+                            <h3>Llaves</h3>
+                            <span>92 productos</span>
+                        </div>
+                    </div>
+
+                    <div class="category-card" data-category="alicates">
+                        <div class="category-card__image">
+                            <img src="https://media.wuerth.com//stmedia/wuerth/images/std.lang.all/resolutions/category/576px/846726.jpg" alt="Alicates">
+                            <div class="category-card__overlay"></div>
+                        </div>
+                        <div class="category-card__content">
+                            <i class="fa-solid fa-pliers"></i>
+                            <h3>Alicates</h3>
+                            <span>56 productos</span>
+                        </div>
+                    </div>
+
+                    <div class="category-card" data-category="medicion">
+                        <div class="category-card__image">
+                            <img src="https://www.elmecaniquejo.com/wp-content/uploads/2020/11/IMG_20201109_223850-3000x2250.jpg" alt="Medición">
+                            <div class="category-card__overlay"></div>
+                        </div>
+                        <div class="category-card__content">
+                            <i class="fa-solid fa-ruler-combined"></i>
+                            <h3>Medición</h3>
+                            <span>34 productos</span>
+                        </div>
+                    </div>
+
+                    <div class="category-card" data-category="Herramientas electricas">
+                        <div class="category-card__image">
+                            <img src="https://images.falabella.com/v3/assets/blt5e6c562c7d14bc51/blt3b0dbc17dc8e2ee1/63d83e8ee480c910d1acb3f1/sierra_circular_img1.png" alt="Herramientas electricas">
+                            <div class="category-card__overlay"></div>
+                        </div>
+                        <div class="category-card__content">
+                            <i class="fa-solid fa-saw"></i>
+                            <h3>Sierras</h3>
+                            <span>28 productos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Catalog Section -->
+        <section class="catalog section" id="catalog">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">Descubre Nuestra</span>
+                    <h2 class="section__title">Colección de Herramientas</h2>
+                </div>
+
+                <!-- Catalog Filters -->
+                <div class="catalog__filters">
+                    <div class="filter-group">
+                        <button class="filter-btn active" data-filter="all">Todos</button>
+                        <button class="filter-btn" data-filter="martillos">Martillos</button>
+                        <button class="filter-btn" data-filter="destornilladores">Destornilladores</button>
+                        <button class="filter-btn" data-filter="llaves">Llaves</button>
+                        <button class="filter-btn" data-filter="alicates">Alicates</button>
+                        <button class="filter-btn" data-filter="medicion">Medición</button>
+                        <button class="filter-btn" data-filter="sierras">Sierras</button>
+                    </div>
+                    
+                    <div class="sort-group">
+                        <label for="sort-select">Ordenar por:</label>
+                        <select id="sort-select" class="sort-select">
+                            <option value="featured">Destacados</option>
+                            <option value="price-low">Precio: Menor a Mayor</option>
+                            <option value="price-high">Precio: Mayor a Menor</option>
+                            <option value="name">Nombre A-Z</option>
+                            <option value="rating">Mejor Valorados</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="products__grid" id="products-grid">
+                    <!-- Products will be loaded via JavaScript -->
+                </div>
+
+                <!-- Load More Button -->
+                <div class="catalog__actions">
+                    <button class="btn btn--primary btn--large" id="load-more">
+                        <i class="fa-solid fa-plus"></i>
+                        Cargar Más Productos
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials section">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">Lo Que Dicen</span>
+                    <h2 class="section__title">Nuestros Clientes</h2>
+                </div>
+
+                <div class="testimonials__grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-card__rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="testimonial-card__text">
+                            "Excelente calidad en todas las herramientas que he comprado. El envío fue rapidísimo 
+                            y el servicio al cliente impecable. Sin duda mi tienda de referencia."
+                        </p>
+                        <div class="testimonial-card__author">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos García">
+                            <div>
+                                <h4>Carlos García</h4>
+                                <span>Carpintero Profesional</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-card__rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="testimonial-card__text">
+                            "CROWFORZA tiene la mejor selección de herramientas manuales. Los precios son muy 
+                            competitivos y la calidad es superior. Totalmente recomendable."
+                        </p>
+                        <div class="testimonial-card__author">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="María López">
+                            <div>
+                                <h4>María López</h4>
+                                <span>Aficionada al Bricolaje</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-card__rating">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                        <p class="testimonial-card__text">
+                            "Llevo años comprando aquí para mi taller. La garantía de 2 años y el soporte técnico 
+                            son un plus increíble. Herramientas que duran toda la vida."
+                        </p>
+                        <div class="testimonial-card__author">
+                            <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Antonio Ruiz">
+                            <div>
+                                <h4>Antonio Ruiz</h4>
+                                <span>Mecánico Industrial</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="newsletter">
+            <div class="container">
+                <div class="newsletter__content">
+                    <div class="newsletter__text">
+                        <h2>Suscríbete a Nuestro Newsletter</h2>
+                        <p>Recibe ofertas exclusivas, novedades y consejos de expertos directamente en tu correo.</p>
+                    </div>
+                    <form class="newsletter__form" id="newsletter-form">
+                        <input type="email" placeholder="Tu correo electrónico" required>
+                        <button type="submit" class="btn btn--primary">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            Suscribirme
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact section" id="contact">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__subtitle">¿Tienes Preguntas?</span>
+                    <h2 class="section__title">Contáctanos</h2>
+                </div>
+
+                <div class="contact__grid">
+                    <div class="contact__info">
+                        <div class="contact__card">
+                            <div class="contact__card-icon">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div class="contact__card-content">
+                                <h4>Dirección</h4>
+                                <p>Quemirabobo<br>221218 Lusail, Qatar</p>
+                            </div>
+                        </div>
+
+                        <div class="contact__card">
+                            <div class="contact__card-icon">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div class="contact__card-content">
+                                <h4>Teléfono</h4>
+                                <p>+54 922 123 456<br>Lun - Vie: 9:00 - 18:00</p>
+                            </div>
+                        </div>
+
+                        <div class="contact__card">
+                            <div class="contact__card-icon">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div class="contact__card-content">
+                                <h4>Email</h4>
+                                <p>info@crowforza.com<br>soporte@crowforza.com</p>
+                            </div>
+                        </div>
+
+                        <div class="contact__social">
+                            <h4>Síguenos</h4>
+                            <div class="social-links">
+                                <a href="#" class="social-link"><i class="fa-brands fa-facebook-f"></i></a>
+                                <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+                                <a href="#" class="social-link"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fa-brands fa-youtube"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form class="contact__form" id="contact-form">
+                        <div class="form-group">
+                            <label for="name">Nombre Completo</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Teléfono</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Asunto</label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Selecciona una opción</option>
+                                <option value="consulta">Consulta General</option>
+                                <option value="pedido">Información de Pedido</option>
+                                <option value="devolucion">Devoluciones</option>
+                                <option value="soporte">Soporte Técnico</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Mensaje</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--large">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            Enviar Mensaje
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__grid">
+                <div class="footer__brand">
+                    <a href="#" class="footer__logo">
+                        <span class="logo-crow">CROW</span><span class="logo-forza">FORZA</span>
+                        <img src="assets/logo-crowforza.jpg" alt="CROWFORZA Logo" class="logo-icon logo-icon--footer">
+                    </a>
+                    <p class="footer__description">
+                        Tu tienda de confianza para herramientas manuales de calidad profesional. 
+                        Más de 15 años equipando a los mejores profesionales.
+                    </p>
+                    <div class="footer__social">
+                        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer__links">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul>
+                        <li><a href="#home">Inicio</a></li>
+                        <li><a href="#catalog">Catálogo</a></li>
+                        <li><a href="#categories">Categorías</a></li>
+                        <li><a href="#about">Nosotros</a></li>
+                        <li><a href="#contact">Contacto</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__links">
+                    <h4>Categorías</h4>
+                    <ul>
+                        <li><a href="#">Martillos</a></li>
+                        <li><a href="#">Destornilladores</a></li>
+                        <li><a href="#">Llaves</a></li>
+                        <li><a href="#">Alicates</a></li>
+                        <li><a href="#">Medición</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__links">
+                    <h4>Atención al Cliente</h4>
+                    <ul>
+                        <li><a href="#">Preguntas Frecuentes</a></li>
+                        <li><a href="#">Envíos y Entregas</a></li>
+                        <li><a href="#">Devoluciones</a></li>
+                        <li><a href="#">Garantía</a></li>
+                        <li><a href="#">Términos y Condiciones</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__newsletter">
+                    <h4>Newsletter</h4>
+                    <p>Suscríbete para recibir Descuentos de hasta el 25%!!! Ofertas exclusivas!!</p>
+                    <form class="footer__form">
+                        <input type="email" placeholder="Tu email">
+                        <button type="submit"><i class="fa-solid fa-arrow-right"></i></button>
+                    </form>
+                    <div class="footer__payment">
+                        <span>Métodos de pago:</span>
+                        <div class="payment-icons">
+                            <i class="fa-brands fa-cc-visa"></i>
+                            <i class="fa-brands fa-cc-mastercard"></i>
+                            <i class="fa-brands fa-cc-paypal"></i>
+                            <i class="fa-brands fa-cc-apple-pay"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer__bottom">
+                <p>&copy; 2026 CROWFORZA. Todos los derechos reservados.</p>
+                <div class="footer__legal">
+                    <a href="#">Política de Privacidad</a>
+                    <a href="#">Términos de Uso</a>
+                    <a href="#">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="back-to-top" aria-label="Volver arriba">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- WhatsApp Button con Chatbot -->
+    <div class="whatsapp-container" id="whatsapp-container">
+        <!-- Mini Chatbot -->
+        <div class="whatsapp-chatbot" id="whatsapp-chatbot">
+            <div class="whatsapp-chatbot__header">
+                <div class="whatsapp-chatbot__avatar">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div class="whatsapp-chatbot__info">
+                    <h4>CROWFORZA</h4>
+                    <span>En línea</span>
+                </div>
+            </div>
+            <div class="whatsapp-chatbot__body">
+                <div class="whatsapp-chatbot__message">
+                    ¡Hola! 👋 ¿En qué podemos ayudarte hoy?
+                </div>
+            </div>
+            <div class="whatsapp-chatbot__footer">
+                <a href="https://wa.me/34900123456?text=Hola%20CROWFORZA,%20me%20interesa%20información%20sobre%20sus%20herramientas" 
+                   target="_blank" 
+                   rel="noopener noreferrer">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    Iniciar conversación
+                </a>
+            </div>
+        </div>
+        
+        <!-- Botón WhatsApp con diálogo animado -->
+        <div style="position: relative;">
+            <span class="whatsapp-dialog">Escribime 😊</span>
+            <a href="https://wa.me/34900123456?text=Hola%20CROWFORZA,%20me%20interesa%20información%20sobre%20sus%20herramientas" 
+               class="whatsapp-btn" 
+               id="whatsapp-btn" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               aria-label="Contactar por WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Product Quick View Modal -->
+    <div class="modal" id="product-modal">
+        <div class="modal__overlay"></div>
+        <div class="modal__content">
+            <button class="modal__close" id="modal-close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal__body" id="modal-body">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="js/products.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
