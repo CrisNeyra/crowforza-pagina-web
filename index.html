@@ -45,6 +45,20 @@
             </div>
 
             <div class="nav__actions">
+                <!-- Usuario: menú tipo e-commerce -->
+                <div class="nav-user" id="nav-user">
+                    <button type="button" class="auth-btn" id="auth-btn" aria-label="Cuenta de usuario" aria-expanded="false" aria-haspopup="true">
+                        <i class="fa-solid fa-user"></i>
+                        <span id="auth-btn-text">Ingresar</span>
+                        <i class="fa-solid fa-chevron-down nav-user__chevron" id="auth-btn-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div class="nav-user__menu" id="nav-user-menu" role="menu" hidden>
+                        <a href="#about" class="nav-user__link" role="menuitem"><i class="fa-solid fa-id-card"></i> Mi cuenta</a>
+                        <button type="button" class="nav-user__item" id="nav-user-orders" role="menuitem"><i class="fa-solid fa-receipt"></i> Mis pedidos</button>
+                        <button type="button" class="nav-user__item nav-user__item--danger" id="nav-user-logout" role="menuitem"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+                    </div>
+                </div>
+
                 <!-- Theme Toggle -->
                 <button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">
                     <i class="fa-solid fa-moon" id="theme-icon"></i>
@@ -125,7 +139,7 @@
                             <img src="https://s7d2.scene7.com/is/image/Caterpillar/CM20200219-db34e-f70d2?fmt=png-alpha" alt="CAT" class="brand-logo">
                         </div>
                         <div class="brand-card" data-brand="bosch">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Bosch-logo.svg/200px-Bosch-logo.svg.png" alt="BOSCH" class="brand-logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/16/Bosch-logo.svg" alt="BOSCH" class="brand-logo">
                         </div>
                         <div class="brand-card" data-brand="makita">
                             <img src="https://www.wmv-dresden.de/wp-content/uploads/2016/12/makita_logo.png" alt="MAKITA" class="brand-logo">
@@ -140,7 +154,7 @@
                             <img src="https://www.milwaukeetool.com/--/web-images/sc/0242a505cb7b4d8197adbec908c139c2?hash=7dea362b3fac8e00956a4952a3d4f474&lang=es-US&mw=267" alt="MILWAUKEE" class="brand-logo">
                         </div>
                         <div class="brand-card" data-brand="dewalt">
-                            <img src="https://www.dewalt.com/sites/g/files/xnuzat961/files/dewalt2024_logo.png" alt="DEWALT" class="brand-logo">
+                            <img src="https://ar.dewalt.global/sites/g/files/xnuzat1971/files/dewalt_black%402x.png" alt="DEWALT" class="brand-logo">
                         </div>
                         <div class="brand-card" data-brand="bremen">
                             <img src="https://bremenar.vtexassets.com/assets/vtex.file-manager-graphql/images/46cf5dcb-d1ef-4d79-951e-d9bec9200bca___17d331b38fd56dc525d7f194538ae44a.png" alt="BREMEN" class="brand-logo">
@@ -164,7 +178,7 @@
                             <i class="fa-solid fa-truck-fast"></i>
                         </div>
                         <h3 class="feature-card__title">Envío Rápido</h3>
-                        <p class="feature-card__text">Entrega en 24-48h en toda España</p>
+                        <p class="feature-card__text">Entrega en 24-48h en toda Argentina</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-card__icon">
@@ -208,23 +222,10 @@
                 
                 <div class="about__grid">
                     <div class="about__images">
-                        <!-- Slideshow de imágenes industriales -->
-                        <div class="about__slideshow" id="about-slideshow">
-                            <div class="about__slide active">
-                                <img src="https://media.istockphoto.com/id/517722529/es/foto/trabajador-de-la-construcci%C3%B3n-con-perforator.webp?s=1024x1024&w=is&k=20&c=XtNoboqG_Xm9FUjUSILH6keyRwTnAcpnpDlv1l779eU=" alt="Trabajo industrial">
-                            </div>
-                            
-                            <div class="about__slide">
-                                <img src="https://img.freepik.com/fotos-premium/hombre-elige-herramienta-electrica-ferreteria_255667-83941.jpg" alt="Industria metalúrgica">
-                            </div>
-                            
-                        </div>
-                        <!-- Indicadores del slideshow -->
-                        <div class="about__slideshow-indicators">
-                            <span class="about__indicator active" data-slide="0"></span>
-                            <span class="about__indicator" data-slide="1"></span>
-                            <span class="about__indicator" data-slide="2"></span>
-                        </div>
+                        <!-- Carrusel dinámico de videos -->
+                        <div class="about__slideshow" id="about-slideshow"></div>
+                        <!-- Indicadores del carrusel -->
+                        <div class="about__slideshow-indicators" id="about-indicators"></div>
                     </div>
                     
                     <div class="about__content">
@@ -245,7 +246,12 @@
                             cada producto que seleccionamos: herramientas que resisten, que no fallan cuando más 
                             se necesitan, que están ahí turno tras turno.
                         </p>
-                        
+                    </div>
+                </div>
+
+                <!-- Lista + CTA debajo del carrusel (nueva fila, ancho contenido) -->
+                <div class="about__post-carousel">
+                    <div class="about__post-carousel-inner">
                         <ul class="about__list">
                             <li>
                                 <i class="fa-solid fa-fire"></i>
@@ -264,7 +270,6 @@
                                 Expertos en soluciones industriales
                             </li>
                         </ul>
-
                         <div class="about__cta">
                             <a href="#contact" class="btn btn--primary">
                                 <i class="fa-solid fa-envelope"></i>
@@ -685,36 +690,34 @@
         <i class="fa-solid fa-arrow-up"></i>
     </button>
 
-    <!-- WhatsApp Button con Chatbot -->
+    <!-- WhatsApp Button con Chatbot (hover solo sobre burbuja + botón; el panel no ocupa zona invisible) -->
     <div class="whatsapp-container" id="whatsapp-container">
-        <!-- Mini Chatbot -->
-        <div class="whatsapp-chatbot" id="whatsapp-chatbot">
-            <div class="whatsapp-chatbot__header">
-                <div class="whatsapp-chatbot__avatar">
-                    <i class="fa-brands fa-whatsapp"></i>
+        <div class="whatsapp-trigger">
+            <!-- Mini Chatbot (posición absoluta; no forma parte del rectángulo de hover del contenedor) -->
+            <div class="whatsapp-chatbot" id="whatsapp-chatbot">
+                <div class="whatsapp-chatbot__header">
+                    <div class="whatsapp-chatbot__avatar">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <div class="whatsapp-chatbot__info">
+                        <h4>CROWFORZA</h4>
+                        <span>En línea</span>
+                    </div>
                 </div>
-                <div class="whatsapp-chatbot__info">
-                    <h4>CROWFORZA</h4>
-                    <span>En línea</span>
+                <div class="whatsapp-chatbot__body">
+                    <div class="whatsapp-chatbot__message">
+                        ¡Hola! 👋 ¿En qué podemos ayudarte hoy?
+                    </div>
+                </div>
+                <div class="whatsapp-chatbot__footer">
+                    <a href="https://wa.me/34900123456?text=Hola%20CROWFORZA,%20me%20interesa%20información%20sobre%20sus%20herramientas" 
+                       target="_blank" 
+                       rel="noopener noreferrer">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        Iniciar conversación
+                    </a>
                 </div>
             </div>
-            <div class="whatsapp-chatbot__body">
-                <div class="whatsapp-chatbot__message">
-                    ¡Hola! 👋 ¿En qué podemos ayudarte hoy?
-                </div>
-            </div>
-            <div class="whatsapp-chatbot__footer">
-                <a href="https://wa.me/34900123456?text=Hola%20CROWFORZA,%20me%20interesa%20información%20sobre%20sus%20herramientas" 
-                   target="_blank" 
-                   rel="noopener noreferrer">
-                    <i class="fa-brands fa-whatsapp"></i>
-                    Iniciar conversación
-                </a>
-            </div>
-        </div>
-        
-        <!-- Botón WhatsApp con diálogo animado -->
-        <div style="position: relative;">
             <span class="whatsapp-dialog">Escribime 😊</span>
             <a href="https://wa.me/34900123456?text=Hola%20CROWFORZA,%20me%20interesa%20información%20sobre%20sus%20herramientas" 
                class="whatsapp-btn" 
@@ -743,7 +746,128 @@
     <!-- Toast Notifications -->
     <div class="toast-container" id="toast-container"></div>
 
+    <!-- Cart Drawer -->
+    <aside class="cart-drawer" id="cart-drawer" aria-hidden="true">
+        <div class="cart-drawer__header">
+            <h3>Tu carrito</h3>
+            <button class="cart-drawer__close" id="cart-close" aria-label="Cerrar carrito">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="cart-drawer__body" id="cart-items">
+            <p class="cart-empty">Tu carrito está vacío.</p>
+        </div>
+        <div class="cart-drawer__footer">
+            <div class="cart-summary">
+                <span>Total</span>
+                <strong id="cart-total">$0</strong>
+            </div>
+            <button class="btn btn--primary btn--large" id="cart-checkout-btn" disabled>
+                <i class="fa-solid fa-credit-card"></i>
+                Pagar ahora
+            </button>
+        </div>
+    </aside>
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="auth-modal">
+        <div class="modal__overlay"></div>
+        <div class="modal__content modal__content--small">
+            <button class="modal__close" id="auth-close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="auth-panel">
+                <h3 class="auth-panel__title">Crear cuenta</h3>
+                <p class="auth-panel__subtitle">Regístrate con email para completar tus compras.</p>
+                <form id="auth-form" class="auth-form">
+                    <label for="auth-email">Correo electrónico</label>
+                    <input type="email" id="auth-email" required placeholder="nombre@correo.com">
+
+                    <label for="auth-password">Contraseña (complejidad media)</label>
+                    <input
+                        type="password"
+                        id="auth-password"
+                        required
+                        placeholder="Mínimo 8, letras y números"
+                        pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$"
+                    >
+                    <small>Debe tener al menos 8 caracteres, letras y números.</small>
+
+                    <button type="submit" class="btn btn--primary btn--large">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Registrarme
+                    </button>
+                </form>
+                <button class="auth-panel__switch" id="auth-switch-btn">
+                    ¿Ya tienes cuenta? Inicia sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pedidos del usuario (modo local / datos guardados) -->
+    <div class="modal" id="orders-modal">
+        <div class="modal__overlay"></div>
+        <div class="modal__content modal__content--small">
+            <button class="modal__close" id="orders-close" type="button">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="orders-panel">
+                <h3>Mis pedidos</h3>
+                <p class="orders-panel__hint">Aquí verás los pedidos confirmados desde este dispositivo.</p>
+                <div class="orders-panel__list" id="orders-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkout-modal">
+        <div class="modal__overlay"></div>
+        <div class="modal__content modal__content--small">
+            <button class="modal__close" id="checkout-close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="checkout-panel">
+                <h3>Checkout seguro</h3>
+                <form id="checkout-form" class="checkout-form">
+                    <label for="checkout-name">Nombre del titular</label>
+                    <input type="text" id="checkout-name" required placeholder="Nombre y apellido">
+
+                    <label for="checkout-method">Método de pago</label>
+                    <select id="checkout-method" required>
+                        <option value="">Selecciona un método</option>
+                        <option value="transferencia">Transferencia bancaria</option>
+                        <option value="credito">Tarjeta de crédito</option>
+                        <option value="debito">Tarjeta de débito</option>
+                        <option value="efectivo">Efectivo contra entrega</option>
+                        <option value="mercado_pago">Mercado Pago</option>
+                    </select>
+
+                    <label for="checkout-notes">Detalle de pago</label>
+                    <textarea
+                        id="checkout-notes"
+                        rows="3"
+                        placeholder="Ej: Banco, terminación de tarjeta o referencia"
+                    ></textarea>
+
+                    <div class="checkout-total">
+                        <span>Importe a pagar</span>
+                        <strong id="checkout-total">$0</strong>
+                    </div>
+
+                    <button type="submit" class="btn btn--primary btn--large">
+                        <i class="fa-solid fa-lock"></i>
+                        Confirmar pago
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/products.js"></script>
+    <script src="js/supabase-config.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>

@@ -200,7 +200,7 @@ const products = [
         category: "medicion",
         price: 30400,
         oldPrice: 37800,
-        image: "https://comercialpazos.com/739947-medium_default/nivel-de-burbuja-modelo-81-sm-60-cm-stabila.jpg",
+        image: "https://proimeq.cl/wp-content/uploads/2020/08/Nivel-60cm-sodimac-scaled.jpg",
         rating: 4.6,
         reviews: 178,
         badge: "sale",
