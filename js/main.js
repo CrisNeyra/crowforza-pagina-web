@@ -16,6 +16,10 @@ let displayedProducts = 8;
 let cart = [];
 let currentUser = null;
 let isLoginMode = false;
+const RATE_LIMIT_CONFIG = {
+    contact: { key: 'crowforza_rl_contact', maxEvents: 2, windowMs: 2 * 60 * 1000 },
+    newsletter: { key: 'crowforza_rl_newsletter', maxEvents: 4, windowMs: 2 * 60 * 1000 }
+};
 
 document.addEventListener('DOMContentLoaded', async () => {
     initTheme();
@@ -1001,36 +1005,155 @@ function initScrollEffects() {
 // ========== FORMULARIOS ==========
 function initForms() {
     const contactForm = document.getElementById('contact-form');
-    contactForm?.addEventListener('submit', (event) => {
+    contactForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
-        showToast('Mensaje enviado correctamente. Te contactaremos pronto.', 'success');
-        contactForm.reset();
+
+        const honeypotValue = contactForm.querySelector('input[name="website"]')?.value || '';
+        if (honeypotValue.trim()) return;
+        if (!checkRateLimit('contact')) {
+            showToast('Demasiados envíos seguidos. Espera un momento e intenta otra vez.', 'error');
+            return;
+        }
+
+        const payload = {
+            full_name: contactForm.querySelector('#name')?.value.trim() || '',
+            email: contactForm.querySelector('#email')?.value.trim().toLowerCase() || '',
+            phone: contactForm.querySelector('#phone')?.value.trim() || null,
+            subject: contactForm.querySelector('#subject')?.value || 'consulta',
+            message: contactForm.querySelector('#message')?.value.trim() || '',
+            source_url: window.location.href,
+            client_fingerprint: getClientFingerprint(),
+            status: 'new'
+        };
+
+        if (!validateEmail(payload.email)) {
+            showToast('Ingresa un email válido para contacto.', 'error');
+            return;
+        }
+
+        try {
+            await persistContactMessage(payload);
+            showToast('Mensaje enviado correctamente. Te contactaremos pronto.', 'success');
+            contactForm.reset();
+        } catch (error) {
+            console.error(error);
+            showToast('No pudimos registrar tu mensaje. Intenta nuevamente.', 'error');
+        }
     });
 
     const newsletterForm = document.getElementById('newsletter-form');
-    newsletterForm?.addEventListener('submit', (event) => {
+    newsletterForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const email = newsletterForm.querySelector('input').value;
+        const email = newsletterForm.querySelector('input[type="email"]').value;
+        const honeypotValue = newsletterForm.querySelector('input[name="company"]')?.value || '';
+        if (honeypotValue.trim()) return;
+        if (!checkRateLimit('newsletter')) {
+            showToast('Demasiadas suscripciones seguidas. Espera un momento.', 'error');
+            return;
+        }
+
         if (validateEmail(email)) {
-            showToast('¡Gracias por suscribirte!', 'success');
-            newsletterForm.reset();
+            try {
+                await persistNewsletterSubscription({
+                    email: email.trim().toLowerCase(),
+                    source: 'newsletter_main',
+                    source_url: window.location.href,
+                    client_fingerprint: getClientFingerprint(),
+                    status: 'active'
+                });
+                showToast('¡Gracias por suscribirte!', 'success');
+                newsletterForm.reset();
+            } catch (error) {
+                console.error(error);
+                showToast('No se pudo guardar tu suscripción.', 'error');
+            }
         } else {
             showToast('Email inválido.', 'error');
         }
     });
 
     document.querySelectorAll('.footer__form').forEach((form) => {
-        form.addEventListener('submit', (event) => {
+        form.addEventListener('submit', async (event) => {
             event.preventDefault();
-            const email = form.querySelector('input').value;
+            const email = form.querySelector('input[type="email"]').value;
             if (validateEmail(email)) {
-                showToast('Suscripción exitosa.', 'success');
-                form.reset();
+                try {
+                    await persistNewsletterSubscription({
+                        email: email.trim().toLowerCase(),
+                        source: 'newsletter_footer',
+                        source_url: window.location.href,
+                        client_fingerprint: getClientFingerprint(),
+                        status: 'active'
+                    });
+                    showToast('Suscripción exitosa.', 'success');
+                    form.reset();
+                } catch (error) {
+                    console.error(error);
+                    showToast('No se pudo registrar la suscripción.', 'error');
+                }
             } else {
                 showToast('Email inválido.', 'error');
             }
         });
     });
+}
+
+function checkRateLimit(kind) {
+    const config = RATE_LIMIT_CONFIG[kind];
+    if (!config) return true;
+
+    const now = Date.now();
+    const stored = JSON.parse(localStorage.getItem(config.key) || '[]');
+    const recent = stored.filter((timestamp) => now - timestamp < config.windowMs);
+
+    if (recent.length >= config.maxEvents) {
+        localStorage.setItem(config.key, JSON.stringify(recent));
+        return false;
+    }
+
+    recent.push(now);
+    localStorage.setItem(config.key, JSON.stringify(recent));
+    return true;
+}
+
+function getClientFingerprint() {
+    const key = 'crowforza_client_fp';
+    const existing = localStorage.getItem(key);
+    if (existing) return existing;
+    const fingerprint = `fp_${Date.now()}_${cryptoRandomId()}`;
+    localStorage.setItem(key, fingerprint);
+    return fingerprint;
+}
+
+async function persistContactMessage(payload) {
+    if (supabaseClient) {
+        const { error } = await supabaseClient.from('contact_messages').insert(payload);
+        if (error) throw error;
+        return;
+    }
+
+    const localMessages = JSON.parse(localStorage.getItem('crowforza_contact_messages') || '[]');
+    localMessages.push({ ...payload, created_at: new Date().toISOString() });
+    localStorage.setItem('crowforza_contact_messages', JSON.stringify(localMessages));
+}
+
+async function persistNewsletterSubscription(payload) {
+    if (supabaseClient) {
+        const { error } = await supabaseClient
+            .from('newsletter_subscribers')
+            .upsert(payload, { onConflict: 'email' });
+        if (error) throw error;
+        return;
+    }
+
+    const localSubscribers = JSON.parse(localStorage.getItem('crowforza_newsletter_subscribers') || '[]');
+    const existingIndex = localSubscribers.findIndex((entry) => entry.email === payload.email);
+    if (existingIndex >= 0) {
+        localSubscribers[existingIndex] = { ...localSubscribers[existingIndex], ...payload };
+    } else {
+        localSubscribers.push({ ...payload, created_at: new Date().toISOString() });
+    }
+    localStorage.setItem('crowforza_newsletter_subscribers', JSON.stringify(localSubscribers));
 }
 
 function validateEmail(email) {

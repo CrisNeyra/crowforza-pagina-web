@@ -269,18 +269,28 @@ ul {
 
 /* Logo Icon (Image) */
 .logo-icon {
-    width: 98px;
-    height: 68px;
+    width: 113px;
+    height: 78px;
     margin-left: 15px;
     margin-top: 8px;
     vertical-align: middle;
     transition: transform var(--transition-normal);
-    object-fit: cover;
-    border-radius: 40%;
+    object-fit: contain;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    border-radius: 7%;
+    background: transparent;
 }
 
 .nav__logo:hover .logo-icon {
     transform: scale(1.1);
+}
+
+.nav__logo:focus,
+.nav__logo:focus-visible {
+    outline: none;
+    box-shadow: none;
 }
 
 .nav__list {
@@ -1866,10 +1876,10 @@ ul {
 }
 
 .logo-icon--footer {
-    width: 60px;
-    height: 42px;
+    width: 69px;
+    height: 48px;
     object-fit: contain;
-    border-radius: 5px;
+    border-radius: 35%;
 }
 
 .footer__description {
@@ -2709,6 +2719,15 @@ ul {
     margin-bottom: 0.35rem;
 }
 
+.honeypot-field {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 .auth-panel__switch {
     margin-top: 1rem;
     width: 100%;
@@ -2978,8 +2997,8 @@ ul {
     }
     
     .logo-icon {
-        width: 55px;
-        height: 38px;
+        width: 63px;
+        height: 44px;
     }
     
     .nav__logo {

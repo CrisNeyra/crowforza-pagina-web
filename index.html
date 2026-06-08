@@ -500,6 +500,7 @@
                         <p>Recibe ofertas exclusivas, novedades y consejos de expertos directamente en tu correo.</p>
                     </div>
                     <form class="newsletter__form" id="newsletter-form">
+                        <input type="text" name="company" class="honeypot-field" tabindex="-1" autocomplete="off" aria-hidden="true">
                         <input type="email" placeholder="Tu correo electrónico" required>
                         <button type="submit" class="btn btn--primary">
                             <i class="fa-solid fa-paper-plane"></i>
@@ -562,6 +563,7 @@
                     </div>
 
                     <form class="contact__form" id="contact-form">
+                        <input type="text" name="website" class="honeypot-field" tabindex="-1" autocomplete="off" aria-hidden="true">
                         <div class="form-group">
                             <label for="name">Nombre Completo</label>
                             <input type="text" id="name" name="name" required>
