@@ -19,9 +19,11 @@ En el dashboard de Vercel (después del primer deploy) o por CLI:
 
 | Name | Value | Environments |
 |------|--------|--------------|
-| `VITE_SUPABASE_URL` | `https://luzffqsatgtjggbnqcia.supabase.co` | Production, Preview |
-| `VITE_SUPABASE_ANON_KEY` | tu anon key (Project Settings → API) | Production, Preview |
+| `VITE_SUPABASE_URL` | `https://luzffqsatgtjggbnqcia.supabase.co` (**sin** `/rest/v1`, **no** uses la URL de Vercel) | Production, Preview |
+| `VITE_SUPABASE_ANON_KEY` | tu anon key (Project Settings → API → `anon` `public`) | Production, Preview |
 | `VITE_ENABLE_MERCADO_PAGO` | `false` | Production, Preview |
+
+Si Auth falla con `Unexpected token... is not valid JSON`, casi seguro `VITE_SUPABASE_URL` está mal (p. ej. pegaste la URL de Vercel). Corregila y hacé **Redeploy**.
 
 Por CLI (reemplazá la anon key):
 
