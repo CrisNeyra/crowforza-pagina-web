@@ -109,6 +109,7 @@ npx vercel --prod
 
 | Doc | Contenido |
 |-----|-----------|
+| [`docs/demo-entrevista.md`](docs/demo-entrevista.md) | Guion demo 60s |
 | [`docs/deploy-vercel.md`](docs/deploy-vercel.md) | Deploy a producción |
 | [`docs/supabase-setup.md`](docs/supabase-setup.md) | SQL, Auth, Edge Functions |
 | [`docs/security-checklist.md`](docs/security-checklist.md) | Checklist seguridad 10/10 |

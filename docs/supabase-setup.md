@@ -1,6 +1,8 @@
-# Setup Supabase — CrowDev / Página web ventaPC
+# Setup Supabase — CROWFORZA
 
-Proyecto: `https://luzffqsatgtjggbnqcia.supabase.co`
+Proyecto Supabase (nombre sugerido en dashboard: **CROWFORZA**).
+Project URL: `https://luzffqsatgtjggbnqcia.supabase.co`
+
 
 Checklist completo de seguridad: [`docs/security-checklist.md`](security-checklist.md)
 

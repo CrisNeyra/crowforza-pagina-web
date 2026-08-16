@@ -1,0 +1,15 @@
+---
+description: Siempre dar paso a paso con ubicacion (donde hacer cada accion)
+alwaysApply: true
+---
+
+# Instrucciones de ejecucion para el usuario
+
+En cada respuesta donde el usuario deba hacer algo (dashboard, terminal, Vercel, Supabase, n8n, browser):
+
+1. Da **paso a paso numerado**.
+2. En cada paso indica **Donde** (app + menu/ruta exacta) y **Que pegar/hacer**.
+3. Preferi tablas cortas Campo | Valor cuando haya formularios.
+4. No asumas que recuerda pasos previos: re-inclui lo esencial.
+5. Responde en espanol.
+6. Evita mandarlo a "preguntar de nuevo" por falta de ubicacion: anticipa el donde.
