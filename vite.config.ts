@@ -20,6 +20,10 @@ export default defineConfig({
     port: 3000,
     open: false,
     headers: securityHeaders,
+    // En Windows, vigilar MP4 grandes en public/ puede tirar EBUSY y tumbar Vite
+    watch: {
+      ignored: ["**/public/assets/videos/**", "**/*.mp4"],
+    },
   },
   preview: {
     headers: securityHeaders,

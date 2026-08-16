@@ -1340,19 +1340,21 @@ function initAboutSlideshow() {
     const indicatorsContainer = document.getElementById('about-indicators');
     if (!slideshow || !indicatorsContainer) return;
 
+    // Rutas bajo /public para que Vite las sirva también en Vercel (dist/)
     const aboutMedia = [
-        { src: 'assets/videos/1amoladora2.mp4', label: 'Operario con amoladora' },
-        { src: 'assets/videos/2demoledor.mp4', label: 'Demoledor industrial en uso' },
-        { src: 'assets/videos/3soldador.mp4', label: 'Trabajo profesional de soldadura' },
-        { src: 'assets/videos/4amoladora.mp4', label: 'Amoladora en operación' }
+        { src: '/assets/videos/1amoladora2.mp4', label: 'Operario con amoladora' },
+        { src: '/assets/videos/2demoledor.mp4', label: 'Demoledor industrial en uso' },
+        { src: '/assets/videos/3soldador.mp4', label: 'Trabajo profesional de soldadura' },
+        { src: '/assets/videos/4amoladora.mp4', label: 'Amoladora en operación' }
     ];
 
     // Tiempo visible por slide (ms): 6 segundos para todos.
     const durationsMs = [6000, 6000, 6000, 6000];
 
-    slideshow.innerHTML = aboutMedia
-        .map(
-            (media, index) => `
+    slideshow.innerHTML =
+        aboutMedia
+            .map(
+                (media, index) => `
             <div class="about__slide ${index === 0 ? 'active' : ''}" data-slide="${index}">
                 <video loop muted playsinline preload="metadata" aria-label="${media.label}">
                     <source src="${media.src}" type="video/mp4">
@@ -1360,8 +1362,12 @@ function initAboutSlideshow() {
                 </video>
             </div>
         `
-        )
-        .join('');
+            )
+            .join('') +
+        `<div class="about__watermark" aria-hidden="true">
+            <img src="/assets/logo-crowforza.jpg" alt="" width="80" height="80" decoding="async">
+            <span>CROWFORZA</span>
+        </div>`;
 
     indicatorsContainer.innerHTML = aboutMedia
         .map(
