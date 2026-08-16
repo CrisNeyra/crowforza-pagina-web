@@ -14,6 +14,7 @@ export const products: Product[] = [
         reviews: 156,
         badge: "sale",
         description: "Martillo de carpintero profesional con mango ergonómico de fibra de vidrio y cabeza de acero forjado. Peso: 450g.",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -28,6 +29,7 @@ export const products: Product[] = [
         reviews: 89,
         badge: "new",
         description: "Maza De Acero 1.5kg Cabo Fibra Certificadas",
+        stock: 20,
         inStock: true,
         featured: false
     },
@@ -42,6 +44,7 @@ export const products: Product[] = [
         reviews: 67,
         badge: null,
         description: "Maza de goma negra para trabajos delicados. No daña superficies.",
+        stock: 20,
         inStock: true,
         featured: false
     },
@@ -58,6 +61,7 @@ export const products: Product[] = [
         reviews: 312,
         badge: "sale",
         description: "Set completo de destornilladores de precisión para electrónica. Incluye puntas intercambiables.",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -72,6 +76,7 @@ export const products: Product[] = [
         reviews: 445,
         badge: "hot",
         description: "KIT COMPLETO: Juego de destornilladores de 119 piezas. Incluye 6 tipos de puntas de destornillador, 50 piezas de puntas intercambiables y 10 piezas de llaves de vaso para trabajos de fijación diaria o tareas precisas como reparación de relojes, electrónica, ordenadores, reparación de joyas, mantenimiento de contadores, reparación de muebles, etc. Adecuado para el hogar, al aire libre, fábrica, instalación comercial y mantenimiento, etc.",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -87,6 +92,7 @@ export const products: Product[] = [
         reviews: 156,
         badge: "new",
         description: "Juego de destornilladores Phillips en varios tamaños. Puntas templadas.",
+        stock: 20,
         inStock: true,
         featured: false
     },
@@ -103,6 +109,7 @@ export const products: Product[] = [
         reviews: 289,
         badge: "sale",
         description: "Composición Set: 6; 7; 8; 9; 10; 11; 12; 13; 14; 17; 19; 22 mm",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -117,6 +124,7 @@ export const products: Product[] = [
         reviews: 198,
         badge: "hot",
         description: "Llave inglesa ajustable de 10 pulgadas. Apertura máxima 30mm.",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -131,6 +139,7 @@ export const products: Product[] = [
         reviews: 134,
         badge: null,
         description: "Juego de llaves Allen de 1.5 a 10mm con soporte plegable.",
+        stock: 20,
         inStock: true,
         featured: false
     },
@@ -147,6 +156,7 @@ export const products: Product[] = [
         reviews: 367,
         badge: "hot",
         description: "Alicates universales alemanes de alta calidad. Corte lateral integrado.",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -161,6 +171,7 @@ export const products: Product[] = [
         reviews: 145,
         badge: "sale",
         description: "Alicates de corte diagonal para cables y alambres. Filos inductivos.",
+        stock: 20,
         inStock: true,
         featured: false
     },
@@ -175,6 +186,7 @@ export const products: Product[] = [
         reviews: 98,
         badge: null,
         description: "Alicates de punta de cadena multiusos, los alicates de punta de franja son excelentes alicates de uso general para doblar láminas de metal y alambre y sus mandíbulas cónicas estrechas a un punto fino",
+        stock: 20,
         inStock: true,
         featured: false
     },
@@ -192,6 +204,7 @@ export const products: Product[] = [
         reviews: 423,
         badge: "hot",
         description: "Cinta métrica de 5 metros con carcasa resistente a golpes.",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -206,6 +219,7 @@ export const products: Product[] = [
         reviews: 178,
         badge: "sale",
         description: "Perfil de fundición de aluminio inyectada resistente y manejable con una forma estrecha y trapezoidal. Imanes de ferrita potentes para fijar el nivel de burbuja en elementos de construcción metálicos: manos libres al alinear y ajustar postes y vigas.",
+        stock: 20,
         inStock: true,
         featured: false
     },
@@ -220,6 +234,7 @@ export const products: Product[] = [
         reviews: 267,
         badge: "new",
         description: "Los calibradores digitales pueden medir fácilmente el diámetro exterior, el diámetro interior, el paso, la profundidad, etc. La función de cero puede recalibrar el calibrador en cualquier momento para una mayor precisión. La función de conversión milímetro / pulgada se puede adaptar a los hábitos de los diferentes usuarios.",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -236,6 +251,7 @@ export const products: Product[] = [
         reviews: 156,
         badge: "sale",
         description: "Juego de sierra de mano de 13 piezas con hojas de sierra y accesorios (para más información, consulte la siguiente descripción). Todo se guarda en un estuche rígido, compacto y ligero, ideal para proyectos de bricolaje, actividades al aire libre o uso doméstico con diferentes tipos de materiales. Adecuado para cortar madera, plástico, metal, cerámica, azulejos, etc.",    
+        stock: 20,
         inStock: true,
         featured: false
     },
@@ -250,6 +266,7 @@ export const products: Product[] = [
         reviews: 134,
         badge: "hot",
         description: "Serrucho de 22 pulgadas dorado Truper, es apto para cortar madera y PVC en trabajos de construcción y carpintería; cuenta con 7 dientes por pulgada. Su hoja está hecha de acero al alto carbono templado y mango de madera con sujeción de 3 puntos.",
+        stock: 20,
         inStock: true,
         featured: true
     },
@@ -264,6 +281,7 @@ export const products: Product[] = [
         reviews: 67,
         badge: null,
         description: "Sierra de calar para cortes curvos. Marco de acero reforzado.",
+        stock: 20,
         inStock: true,
         featured: false
     },

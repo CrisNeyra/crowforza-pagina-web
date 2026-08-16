@@ -4,7 +4,7 @@ Sitio: https://crowforza-pagina-web.vercel.app
 
 ## Qué decir (texto corto)
 
-> “Es una tienda full-stack de demo: Vite + TypeScript en el front, Supabase con Auth, Postgres y RLS, Edge Functions para formularios con rate limit, y n8n para automatizar respuestas de contacto. Los pedidos quedan `pending`; el `paid` nunca lo marca el browser, solo un webhook de servidor. Mercado Pago está cableado en código pero desactivado en la demo.”
+> “Es una tienda full-stack de demo: Vite + TypeScript en el front, Supabase con Auth, Postgres y RLS, Edge Functions para formularios con rate limit, y n8n para automatizar respuestas de contacto. Los pedidos quedan `pending`; el `paid` nunca lo marca el browser, solo un webhook de servidor. Los precios los fija el catálogo del servidor, no el carrito del cliente. Mercado Pago está cableado en código pero desactivado en la demo.”
 
 ## Recorrido en pantalla (60s)
 
@@ -21,7 +21,7 @@ Sitio: https://crowforza-pagina-web.vercel.app
 
 - **RLS:** “Cada usuario solo ve sus pedidos; newsletter/contacto son insert-only desde el cliente.”
 - **n8n:** “Un Database Webhook dispara el workflow; updates van con service role, nunca en el front.”
-- **MP:** “`create-checkout` + `mp-webhook`; flag `VITE_ENABLE_MERCADO_PAGO=false` en demo.”
+- **MP:** “`create-checkout` recotiza con catálogo server-side + `mp-webhook` con firma e idempotencia; flag `VITE_ENABLE_MERCADO_PAGO=false` en demo.”
 - **Deploy:** “Vercel + env `VITE_SUPABASE_*` + Auth redirect al dominio.”
 
 ## Checklist 2 minutos antes de la entrevista

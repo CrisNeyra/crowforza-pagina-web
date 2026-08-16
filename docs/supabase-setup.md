@@ -22,6 +22,7 @@ En **SQL Editor**, ejecutá en este orden:
 1. `supabase/schema.sql`
 2. `supabase/automation_mvp.sql`
 3. `supabase/security_hardening.sql` ← obligatorio para el hardening actual
+4. `supabase/catalog_stock.sql` ← catálogo, stock, RPC `place_order` y tabla `admins`
 
 Los comentarios SQL usan **dos** guiones (`--`). Si ves `syntax error at or near "-"`, te faltó un guión al pegar.
 
@@ -30,6 +31,13 @@ Los comentarios SQL usan **dos** guiones (`--`). Si ves `syntax error at or near
 En **Authentication → Providers**, dejá Email habilitado.
 En **producción** dejá **Confirm email** activado.
 Para pruebas locales podés desactivarlo temporalmente.
+
+Para el panel **Inventario**: Authentication → Users → copiá el UUID → SQL Editor:
+
+```sql
+insert into public.admins (user_id) values ('TU-UUID')
+on conflict (user_id) do nothing;
+```
 
 ## 4) Mercado Pago + formularios (Edge Functions)
 

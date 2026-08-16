@@ -23,14 +23,16 @@ Ejecutá estos pasos en orden. Lo del repo ya está listo; lo marcado **Manual**
 ```bash
 supabase login
 supabase link --project-ref luzffqsatgtjggbnqcia
-supabase secrets set MP_ACCESS_TOKEN=APP_USR_xxx SITE_URL=https://tu-dominio.com
+supabase secrets set MP_ACCESS_TOKEN=APP_USR_xxx SITE_URL=https://tu-dominio.com MP_WEBHOOK_SECRET=tu_secret_de_notificaciones
 supabase functions deploy create-checkout
 supabase functions deploy mp-webhook
 supabase functions deploy submit-form --no-verify-jwt
 ```
 
 - El front, con método **Mercado Pago**, llama `create-checkout`.
+- `create-checkout` **revalida precios contra el catálogo del servidor** (`supabase/functions/_shared/catalog.ts`).
 - `paid` solo lo marca `mp-webhook` (service role), nunca el browser.
+- Secret extra: `MP_WEBHOOK_SECRET` (firma `x-signature` de Mercado Pago). Si falta, el webhook igual consulta el pago en la API de MP.
 
 ## 4) n8n — solo service role
 

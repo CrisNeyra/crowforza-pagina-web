@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+    <a class="skip-link" href="#catalog">Ir al catálogo</a>
     <!-- Header -->
     <header class="header" id="header">
         <nav class="nav container">
@@ -77,6 +78,7 @@
                     <div class="nav-user__menu" id="nav-user-menu" role="menu" hidden>
                         <a href="#about" class="nav-user__link" role="menuitem"><i class="fa-solid fa-id-card"></i> Mi cuenta</a>
                         <button type="button" class="nav-user__item" id="nav-user-orders" role="menuitem"><i class="fa-solid fa-receipt"></i> Mis pedidos</button>
+                        <button type="button" class="nav-user__item" id="nav-user-inventory" role="menuitem" hidden><i class="fa-solid fa-boxes-stacked"></i> Inventario</button>
                         <button type="button" class="nav-user__item nav-user__item--danger" id="nav-user-logout" role="menuitem"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
                     </div>
                 </div>
@@ -87,15 +89,15 @@
                 </button>
 
                 <!-- Cart -->
-                <button class="cart-btn" id="cart-btn">
+                <button class="cart-btn" id="cart-btn" type="button" aria-label="Abrir carrito">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span class="cart-count" id="cart-count">0</span>
                 </button>
 
                 <!-- Mobile Toggle -->
-                <div class="nav__toggle" id="nav-toggle">
+                <button class="nav__toggle" id="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
                     <i class="fa-solid fa-bars"></i>
-                </div>
+                </button>
             </div>
         </nav>
 
@@ -103,12 +105,14 @@
         <div class="search-container container">
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <label class="sr-only" for="search-input">Buscar herramientas</label>
                 <input 
-                    type="text" 
+                    type="search" 
                     class="search-input" 
                     id="search-input" 
                     placeholder="Buscar herramientas, marcas, categorías..."
                     autocomplete="off"
+                    aria-label="Buscar herramientas, marcas y categorías"
                 >
                 <button class="search-clear" id="search-clear" style="display: none;">
                     <i class="fa-solid fa-xmark"></i>
@@ -125,11 +129,8 @@
         <section class="hero" id="home">
             <!-- Video de fondo -->
             <div class="hero__video-container">
-                <video class="hero__video" id="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1504917595217-d4dc5ebb6f71?w=1920">
-                    <!-- Video local (preferido) -->
-                    <source src="assets/hero-video.mp4" type="video/mp4">
-                    <!-- Fallback a video online de Pexels -->
-                    <source src="https://videos.pexels.com/video-files/5532771/5532771-sd_640_360_25fps.mp4" type="video/mp4">
+                <video class="hero__video" id="hero-video" autoplay muted loop playsinline preload="none" poster="/assets/videos/posters/hero.webp">
+                    <source src="/assets/videos/hero.mp4" type="video/mp4">
                 </video>
                 <div class="hero__video-overlay"></div>
                 <!-- Imagen de respaldo animada si el video no carga -->
@@ -845,6 +846,21 @@
         </div>
     </div>
 
+    <div class="modal" id="inventory-modal">
+        <div class="modal__overlay"></div>
+        <div class="modal__content modal__content--small">
+            <button class="modal__close" id="inventory-close" type="button">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="orders-panel">
+                <h3>Inventario</h3>
+                <p class="orders-panel__hint">Editá precio y stock. Solo visible para administradores.</p>
+                <div class="inventory-list" id="inventory-list"></div>
+                <button type="button" class="btn btn--primary" id="inventory-save">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Checkout Modal -->
     <div class="modal" id="checkout-modal">
         <div class="modal__overlay"></div>
@@ -887,6 +903,11 @@
                 </form>
             </div>
         </div>
+    </div>
+
+    <div class="cookie-banner" id="cookie-banner" hidden role="dialog" aria-label="Aviso de cookies">
+        <p>Usamos cookies técnicas para el carrito y tu sesión. <a href="/cookies.html">Más info</a>.</p>
+        <button type="button" class="btn btn--primary" id="cookie-accept">Entendido</button>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

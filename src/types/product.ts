@@ -11,6 +11,7 @@ export interface Product {
   reviews: number;
   badge: ProductBadge;
   description: string;
+  stock: number;
   inStock: boolean;
   featured: boolean;
 }

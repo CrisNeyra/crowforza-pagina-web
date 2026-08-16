@@ -8,7 +8,8 @@ import {
     supabaseAnonKey,
     supabaseUrl,
 } from "./config";
-import { products } from "./data/products";
+import { products as fallbackProducts } from "./data/products";
+import { mapDbProduct, quoteCartAgainstCatalog } from "./lib/catalog";
 import {
     addToCartState,
     calculateCartCount,
@@ -37,6 +38,9 @@ let displayedProducts = 8;
 let cart = [];
 let currentUser = null;
 let isLoginMode = false;
+/** @type {import("./types/product").Product[]} */
+let catalogProducts = fallbackProducts.map((product) => ({ ...product }));
+let isAdminUser = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
     initTheme();
@@ -55,9 +59,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     initAnimations();
     initVideoFallback();
     initAboutSlideshow();
+    initCookieBanner();
+    initInventoryModal();
 
     loadCartFromStorage();
     await initSupabase();
+    await loadCatalogFromSupabase();
+    await refreshAdminStatus();
+    renderProducts();
     updateUserIndicator();
     notifyPaymentReturn();
 });
@@ -94,11 +103,118 @@ async function initSupabase() {
             throw error;
         }
         currentUser = data?.session?.user || null;
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
+            currentUser = session?.user || null;
+            refreshAdminStatus().then(() => updateUserIndicator());
+        });
     } catch (error) {
         console.error('Error inicializando Supabase:', error);
         supabaseClient = null;
         showToast('No se pudo conectar al backend. Modo local activo.', 'error');
         currentUser = getLocalUser();
+    }
+}
+
+async function loadCatalogFromSupabase() {
+    if (!supabaseClient) return;
+    const { data, error } = await supabaseClient
+        .from('products')
+        .select('id, name, category, price, old_price, image, rating, reviews, badge, description, stock, featured, active')
+        .eq('active', true)
+        .order('id', { ascending: true });
+    if (error || !data?.length) {
+        if (error) console.warn('Catálogo DB no disponible, se usa el local.', error.message);
+        return;
+    }
+    catalogProducts = data.map((row) => mapDbProduct(row));
+}
+
+async function refreshAdminStatus() {
+    isAdminUser = false;
+    if (!supabaseClient || !currentUser) return;
+    const { data, error } = await supabaseClient.from('admins').select('user_id').eq('user_id', currentUser.id).maybeSingle();
+    if (error) {
+        console.warn('No se pudo verificar admin:', error.message);
+        return;
+    }
+    isAdminUser = Boolean(data?.user_id);
+}
+
+function initInventoryModal() {
+    const modal = document.getElementById('inventory-modal');
+    const closeBtn = document.getElementById('inventory-close');
+    const overlay = modal?.querySelector('.modal__overlay');
+    const saveBtn = document.getElementById('inventory-save');
+    if (!modal || !closeBtn || !overlay) return;
+
+    const close = () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', close);
+    saveBtn?.addEventListener('click', saveInventoryEdits);
+}
+
+async function openInventoryModal() {
+    const modal = document.getElementById('inventory-modal');
+    const list = document.getElementById('inventory-list');
+    if (!modal || !list) return;
+    if (!isAdminUser) {
+        showToast('No tenés permiso de inventario.', 'error');
+        return;
+    }
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    list.innerHTML = '<p class="orders-empty">Cargando inventario…</p>';
+    const { data, error } = await supabaseClient
+        .from('products')
+        .select('id, name, price, stock, active')
+        .order('id', { ascending: true });
+    if (error || !data) {
+        list.innerHTML = '<p class="orders-empty">No se pudo cargar el inventario.</p>';
+        return;
+    }
+    list.innerHTML = data
+        .map(
+            (row) => `
+        <div class="inventory-row" data-id="${row.id}">
+            <span class="inventory-row__name">${escapeHtml(row.name)}</span>
+            <label>Precio
+                <input type="number" min="0" step="1" class="inventory-price" value="${Number(row.price)}">
+            </label>
+            <label>Stock
+                <input type="number" min="0" step="1" class="inventory-stock" value="${Number(row.stock)}">
+            </label>
+        </div>`
+        )
+        .join('');
+}
+
+async function saveInventoryEdits() {
+    const rows = document.querySelectorAll('#inventory-list .inventory-row');
+    if (!rows.length || !supabaseClient) return;
+    try {
+        for (const row of rows) {
+            const id = Number(row.dataset.id);
+            const price = Number(row.querySelector('.inventory-price')?.value);
+            const stock = Number(row.querySelector('.inventory-stock')?.value);
+            if (!Number.isFinite(price) || price < 0 || !Number.isInteger(stock) || stock < 0) {
+                throw new Error('Precio o stock inválido');
+            }
+            const { error } = await supabaseClient
+                .from('products')
+                .update({ price, stock, updated_at: new Date().toISOString() })
+                .eq('id', id);
+            if (error) throw error;
+        }
+        await loadCatalogFromSupabase();
+        renderProducts();
+        showToast('Inventario actualizado.', 'success');
+        document.getElementById('inventory-modal')?.classList.remove('active');
+        document.body.style.overflow = '';
+    } catch (error) {
+        showToast(error instanceof Error ? error.message : 'No se pudo guardar.', 'error');
     }
 }
 
@@ -141,6 +257,7 @@ function initNavigation() {
 
     navToggle.addEventListener('click', () => {
         navMenu.classList.add('active');
+        navToggle.setAttribute('aria-expanded', 'true');
         document.body.style.overflow = 'hidden';
     });
 
@@ -162,6 +279,7 @@ function initNavigation() {
 
     function closeMenu() {
         navMenu.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', 'false');
         document.body.style.overflow = '';
     }
 }
@@ -221,7 +339,7 @@ function initSearch() {
 
     function performSearch(query) {
         const searchTerms = query.toLowerCase().split(' ');
-        const results = products
+        const results = catalogProducts
             .filter((product) => {
                 const text = `${product.name} ${product.category} ${product.description}`.toLowerCase();
                 return searchTerms.every((term) => text.includes(term));
@@ -296,8 +414,8 @@ function renderProducts() {
 }
 
 function filterProducts() {
-    if (currentFilter === 'all') return [...products];
-    return products.filter((product) => product.category === currentFilter);
+    if (currentFilter === 'all') return [...catalogProducts];
+    return catalogProducts.filter((product) => product.category === currentFilter);
 }
 
 function sortProducts(productList) {
@@ -328,6 +446,14 @@ function createProductCard(product) {
     const safeImage = escapeHtml(product.image);
     const safeCategory = escapeHtml(capitalize(product.category));
 
+    const outOfStock = !product.inStock || (product.stock ?? 0) <= 0;
+    const stockHint = outOfStock
+        ? '<p class="product-card__stock product-card__stock--out">Sin stock</p>'
+        : `<p class="product-card__stock">${product.stock ?? ""} u.</p>`;
+    const addButton = outOfStock
+        ? `<button class="product-card__action primary" data-action="add-cart" disabled><i class="fa-solid fa-ban"></i>Sin stock</button>`
+        : `<button class="product-card__action primary" data-action="add-cart"><i class="fa-solid fa-cart-plus"></i>Añadir</button>`;
+
     return `
         <article class="product-card" data-id="${product.id}" data-category="${escapeHtml(product.category)}">
             ${badgeHTML}
@@ -340,9 +466,7 @@ function createProductCard(product) {
                     <button class="product-card__action" data-action="quick-view">
                         <i class="fa-regular fa-eye"></i>Ver
                     </button>
-                    <button class="product-card__action primary" data-action="add-cart">
-                        <i class="fa-solid fa-cart-plus"></i>Añadir
-                    </button>
+                    ${addButton}
                 </div>
             </div>
             <div class="product-card__content">
@@ -356,6 +480,7 @@ function createProductCard(product) {
                     <span class="product-card__price-current">$${product.price.toLocaleString('es-AR')}</span>
                     ${oldPriceHTML}
                 </div>
+                ${stockHint}
             </div>
         </article>
     `;
@@ -381,7 +506,7 @@ function initProductCardEvents() {
             const productId = Number(btn.closest('.product-card').dataset.id);
             if (btn.dataset.action === 'quick-view') {
                 openProductModal(productId);
-            } else {
+            } else if (btn.dataset.action === 'add-cart' && !btn.disabled) {
                 addToCart(productId);
             }
         });
@@ -451,12 +576,14 @@ function initModal() {
 }
 
 function openProductModal(productId) {
-    const product = products.find((node) => node.id === productId);
+    const product = catalogProducts.find((node) => node.id === productId);
     if (!product) return;
 
     const modal = document.getElementById('product-modal');
     const modalBody = document.getElementById('modal-body');
     const oldPriceHTML = product.oldPrice ? `<span class="modal__price-old">$${product.oldPrice.toLocaleString('es-AR')}</span>` : '';
+    const maxQty = Math.min(10, Math.max(1, Number(product.stock) || 1));
+    const outOfStock = !product.inStock || (product.stock ?? 0) <= 0;
 
     modalBody.innerHTML = `
         <div class="modal__image">
@@ -474,17 +601,18 @@ function openProductModal(productId) {
                 ${oldPriceHTML}
             </div>
             <p class="modal__description">${escapeHtml(product.description)}</p>
+            <p class="modal__stock">${outOfStock ? "Sin stock" : `Stock: ${product.stock} u.`}</p>
             <div class="modal__quantity">
                 <label>Cantidad:</label>
                 <div class="quantity-control">
                     <button class="quantity-btn minus"><i class="fa-solid fa-minus"></i></button>
-                    <input type="number" value="1" min="1" max="10" class="quantity-input">
+                    <input type="number" value="1" min="1" max="${maxQty}" class="quantity-input" ${outOfStock ? "disabled" : ""}>
                     <button class="quantity-btn plus"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
             <div class="modal__buttons">
-                <button class="btn btn--primary" data-action="add-cart">
-                    <i class="fa-solid fa-cart-plus"></i>Añadir al carrito
+                <button class="btn btn--primary" data-action="add-cart" ${outOfStock ? "disabled" : ""}>
+                    <i class="fa-solid fa-cart-plus"></i>${outOfStock ? "Sin stock" : "Añadir al carrito"}
                 </button>
                 <button class="btn btn--outline" data-action="wishlist">
                     <i class="fa-regular fa-heart"></i>
@@ -503,9 +631,10 @@ function openProductModal(productId) {
         quantityInput.value = String(Math.max(1, Number(quantityInput.value) - 1));
     });
     plusBtn.addEventListener('click', () => {
-        quantityInput.value = String(Math.min(10, Number(quantityInput.value) + 1));
+        quantityInput.value = String(Math.min(maxQty, Number(quantityInput.value) + 1));
     });
     addBtn.addEventListener('click', () => {
+        if (outOfStock) return;
         addToCart(productId, Number(quantityInput.value));
         modal.classList.remove('active');
         document.body.style.overflow = '';
@@ -545,8 +674,17 @@ function closeCartDrawer() {
 }
 
 function addToCart(productId, quantity = 1) {
-    const product = products.find((item) => item.id === productId);
+    const product = catalogProducts.find((item) => item.id === productId);
     if (!product) return;
+    if (!product.inStock || (product.stock ?? 0) <= 0) {
+        showToast('Este producto no tiene stock.', 'error');
+        return;
+    }
+    const already = cart.find((item) => item.id === productId)?.quantity || 0;
+    if (already + quantity > (product.stock ?? 0)) {
+        showToast(`Solo hay ${product.stock} u. disponibles.`, 'error');
+        return;
+    }
 
     cart = addToCartState(cart, product, quantity);
     saveCartToStorage();
@@ -756,6 +894,12 @@ function initNavUserMenu() {
         openOrdersModal();
     });
 
+    const inventoryBtn = document.getElementById('nav-user-inventory');
+    inventoryBtn?.addEventListener('click', () => {
+        closeUserMenu();
+        openInventoryModal();
+    });
+
     logoutBtn?.addEventListener('click', async () => {
         closeUserMenu();
         try {
@@ -882,6 +1026,7 @@ async function signInUser(email, password) {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) throw error;
         currentUser = data.user;
+        await refreshAdminStatus();
         showToast('Sesión iniciada correctamente.', 'success');
         return;
     }
@@ -911,6 +1056,7 @@ async function signOutUser() {
         if (error) throw error;
     }
     currentUser = null;
+    isAdminUser = false;
     showToast('Sesión cerrada correctamente.', 'info');
 }
 
@@ -940,6 +1086,10 @@ function updateUserIndicator() {
     if (!cartBtn) return;
     cartBtn.title = currentUser ? `Sesión iniciada: ${currentUser.email}` : 'Carrito (sin sesión)';
     navUser?.classList.toggle('nav-user--logged', Boolean(currentUser));
+    const inventoryBtn = document.getElementById('nav-user-inventory');
+    if (inventoryBtn) {
+        inventoryBtn.hidden = !(currentUser && isAdminUser);
+    }
     if (authBtnText && authBtn) {
         authBtnText.textContent = currentUser ? 'Cuenta' : 'Ingresar';
         authBtn.title = currentUser
@@ -974,12 +1124,14 @@ function initCheckoutModal() {
         const customerName = document.getElementById('checkout-name').value.trim();
         const paymentMethod = document.getElementById('checkout-method').value;
         const paymentNotes = document.getElementById('checkout-notes').value.trim();
-        const items = cart.map((item) => ({
-            product_id: item.id,
-            product_name: item.name,
-            unit_price: item.price,
-            quantity: item.quantity
-        }));
+        let quoted;
+        try {
+            quoted = quoteCartAgainstCatalog(cart, catalogProducts);
+        } catch (error) {
+            showToast(error instanceof Error ? error.message : "Hay un producto no disponible.", "error");
+            return;
+        }
+        const items = quoted.items;
 
         try {
             // MP real solo si el flag está ON y hay sesión (pasarela preparada, no obligatoria en demo).
@@ -1022,7 +1174,7 @@ function initCheckoutModal() {
                 customer_name: customerName,
                 payment_method: paymentMethod,
                 payment_notes: paymentNotes,
-                total_amount: calculateCartTotal(cart),
+                total_amount: quoted.total,
                 items,
                 customer_email: currentUser?.email || null,
                 customer_id: currentUser?.id || null,
@@ -1063,7 +1215,13 @@ function startCheckoutFlow() {
         openAuthModal();
         return;
     }
-    document.getElementById('checkout-total').textContent = `$${calculateCartTotal(cart).toLocaleString('es-AR')}`;
+    try {
+        const quoted = quoteCartAgainstCatalog(cart, catalogProducts);
+        document.getElementById('checkout-total').textContent = `$${quoted.total.toLocaleString('es-AR')}`;
+    } catch (error) {
+        showToast(error instanceof Error ? error.message : 'Hay un producto no disponible.', 'error');
+        return;
+    }
     document.getElementById('checkout-modal').classList.add('active');
 }
 
@@ -1073,23 +1231,30 @@ function closeCheckoutModal() {
 
 async function persistOrder(orderPayload) {
     if (supabaseClient) {
-        const { error } = await supabaseClient.from('orders').insert({
-            customer_email: orderPayload.customer_email,
-            customer_id: orderPayload.customer_id,
-            customer_name: orderPayload.customer_name,
-            payment_method: orderPayload.payment_method,
-            payment_notes: orderPayload.payment_notes,
-            total_amount: orderPayload.total_amount,
-            // Forzado: el cliente nunca puede marcar paid.
-            status: 'pending',
-            items: orderPayload.items
+        const { error } = await supabaseClient.rpc('place_order', {
+            p_customer_name: orderPayload.customer_name,
+            p_payment_method: orderPayload.payment_method,
+            p_payment_notes: orderPayload.payment_notes || null,
+            p_items: (orderPayload.items || []).map((item) => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+            })),
         });
         if (error) throw error;
+        await loadCatalogFromSupabase();
+        renderProducts();
         return;
     }
     const localOrders = JSON.parse(localStorage.getItem('crowforza_orders') || '[]');
     localOrders.push({ ...orderPayload, status: 'pending' });
     localStorage.setItem('crowforza_orders', JSON.stringify(localOrders));
+    catalogProducts = catalogProducts.map((product) => {
+        const line = orderPayload.items?.find((item) => item.product_id === product.id);
+        if (!line) return product;
+        const nextStock = Math.max(0, (product.stock ?? 0) - Number(line.quantity || 0));
+        return { ...product, stock: nextStock, inStock: nextStock > 0 };
+    });
+    renderProducts();
 }
 
 // ========== EFECTOS DE SCROLL ==========
@@ -1323,15 +1488,20 @@ function initVideoFallback() {
     const fallbackBg = document.querySelector('.hero__fallback-bg');
     if (!video) return;
 
-    video.addEventListener('error', () => {
+    const showFallback = () => {
         video.style.display = 'none';
         if (fallbackBg) fallbackBg.style.zIndex = '0';
-    });
+    };
 
-    video.play().catch(() => {
-        video.style.display = 'none';
-        if (fallbackBg) fallbackBg.style.zIndex = '0';
-    });
+    video.addEventListener('error', showFallback);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        video.removeAttribute('autoplay');
+        video.pause();
+        return;
+    }
+
+    video.play().catch(showFallback);
 }
 
 // ========== ABOUT SLIDESHOW ==========
@@ -1342,22 +1512,21 @@ function initAboutSlideshow() {
 
     // Rutas bajo /public para que Vite las sirva también en Vercel (dist/)
     const aboutMedia = [
-        { src: '/assets/videos/1amoladora2.mp4', label: 'Operario con amoladora' },
-        { src: '/assets/videos/2demoledor.mp4', label: 'Demoledor industrial en uso' },
-        { src: '/assets/videos/3soldador.mp4', label: 'Trabajo profesional de soldadura' },
-        { src: '/assets/videos/4amoladora.mp4', label: 'Amoladora en operación' }
+        { src: '/assets/videos/1amoladora2.mp4', poster: '/assets/videos/posters/1amoladora2.webp', label: 'Operario con amoladora' },
+        { src: '/assets/videos/2demoledor.mp4', poster: '/assets/videos/posters/2demoledor.webp', label: 'Demoledor industrial en uso' },
+        { src: '/assets/videos/3soldador.mp4', poster: '/assets/videos/posters/3soldador.webp', label: 'Trabajo profesional de soldadura' },
+        { src: '/assets/videos/4amoladora.mp4', poster: '/assets/videos/posters/4amoladora.webp', label: 'Amoladora en operación' }
     ];
 
     // Tiempo visible por slide (ms): 6 segundos para todos.
-    const durationsMs = [6000, 6000, 6000, 6000];
+    const durationsMs = [5000, 5000, 5000, 5000];
 
     slideshow.innerHTML =
         aboutMedia
             .map(
                 (media, index) => `
             <div class="about__slide ${index === 0 ? 'active' : ''}" data-slide="${index}">
-                <video loop muted playsinline preload="metadata" aria-label="${media.label}">
-                    <source src="${media.src}" type="video/mp4">
+                <video muted playsinline preload="none" poster="${media.poster}" data-src="${media.src}" aria-label="${media.label}">
                     Tu navegador no soporta videos HTML5.
                 </video>
             </div>
@@ -1385,10 +1554,19 @@ function initAboutSlideshow() {
     let currentSlide = 0;
     let slideTimeoutId = null;
 
+    const ensureVideoSource = (video) => {
+        if (!video || video.getAttribute("src")) return;
+        const src = video.getAttribute("data-src");
+        if (!src) return;
+        video.src = src;
+        video.load();
+    };
+
     const syncVideosForSlide = (activeIndex) => {
         videos.forEach((video, i) => {
             if (!video) return;
             if (i === activeIndex) {
+                ensureVideoSource(video);
                 try {
                     video.currentTime = 0;
                 } catch {
@@ -1438,6 +1616,40 @@ function initAboutSlideshow() {
 
     slideshow.addEventListener('mouseenter', () => clearSchedule());
     slideshow.addEventListener('mouseleave', () => scheduleNext());
+
+    if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        syncVideosForSlide(currentSlide);
+                        scheduleNext();
+                    } else {
+                        clearSchedule();
+                        videos.forEach((video) => video?.pause());
+                    }
+                });
+            },
+            { threshold: 0.35 }
+        );
+        observer.observe(slideshow);
+    }
 }
+
+function initCookieBanner() {
+    const banner = document.getElementById("cookie-banner");
+    const accept = document.getElementById("cookie-accept");
+    if (!banner || !accept) return;
+    if (localStorage.getItem("crowforza_cookies") === "accepted") {
+        banner.hidden = true;
+        return;
+    }
+    banner.hidden = false;
+    accept.addEventListener("click", () => {
+        localStorage.setItem("crowforza_cookies", "accepted");
+        banner.hidden = true;
+    });
+}
+
 
 

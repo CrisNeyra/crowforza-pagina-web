@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "lint": "tsc --noEmit",
     "optimize:images": "node scripts/optimize-images.mjs",
-    "optimize:brands": "node scripts/optimize-brands.mjs"
+    "optimize:brands": "node scripts/optimize-brands.mjs",
+    "optimize:videos": "node scripts/optimize-videos.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1"
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@playwright/test": "^1.51.0",
     "@types/node": "^22.13.10",
+    "ffmpeg-static": "^5.3.0",
     "jsdom": "^26.0.0",
     "sharp": "^0.35.3",
     "typescript": "^5.8.2",

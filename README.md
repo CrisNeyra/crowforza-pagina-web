@@ -34,6 +34,7 @@ npm run test:e2e      # smoke Playwright
 npm run build         # producción → dist/
 npm run optimize:images
 npm run optimize:brands
+npm run optimize:videos   # comprime MP4 del hero y Nosotros
 ```
 
 Sin `VITE_SUPABASE_ANON_KEY`, la app corre en **modo local** (localStorage).

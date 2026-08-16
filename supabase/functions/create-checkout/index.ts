@@ -1,12 +1,3 @@
-// Supabase Edge Function — crea preferencia de Mercado Pago
-// Deploy: supabase functions deploy create-checkout --no-verify-jwt=false
-// Secrets: MP_ACCESS_TOKEN, SITE_URL
-//
-// Flujo:
-// 1) Frontend (usuario autenticado) llama esta function con items del carrito
-// 2) Function crea preferencia MP y deja order en status=pending
-// 3) Webhook MP (otra function) confirma paid
-
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
@@ -16,8 +7,6 @@ const corsHeaders = {
 
 type CheckoutItem = {
   product_id: number;
-  product_name: string;
-  unit_price: number;
   quantity: number;
 };
 
@@ -64,15 +53,55 @@ Deno.serve(async (req) => {
       return json({ error: "Payload inválido" }, 400);
     }
 
-    const total = body.items.reduce(
-      (sum, item) => sum + Number(item.unit_price) * Number(item.quantity),
-      0
-    );
+    const admin = createClient(supabaseUrl, serviceKey);
+    const ids = body.items.map((item) => Number(item.product_id));
+    const { data: rows, error: catalogError } = await admin
+      .from("products")
+      .select("id, name, price, stock, active")
+      .in("id", ids);
+
+    if (catalogError || !rows?.length) {
+      return json({ error: catalogError?.message || "Catálogo no disponible" }, 400);
+    }
+
+    const byId = new Map(rows.map((row) => [Number(row.id), row]));
+    const items = [];
+    let total = 0;
+    for (const line of body.items) {
+      const product = byId.get(Number(line.product_id));
+      const quantity = Math.max(1, Math.floor(Number(line.quantity) || 0));
+      if (!product || product.active === false) {
+        return json({ error: `Producto inválido: ${line.product_id}` }, 400);
+      }
+      if (Number(product.stock) < quantity) {
+        return json({ error: `Sin stock suficiente: ${product.name}` }, 409);
+      }
+      const unitPrice = Number(product.price);
+      items.push({
+        product_id: Number(product.id),
+        product_name: product.name,
+        unit_price: unitPrice,
+        quantity,
+      });
+      total += unitPrice * quantity;
+    }
     if (total <= 0) {
       return json({ error: "Total inválido" }, 400);
     }
 
-    const admin = createClient(supabaseUrl, serviceKey);
+    for (const item of items) {
+      const product = byId.get(item.product_id);
+      const nextStock = Number(product?.stock) - item.quantity;
+      const { error: stockError } = await admin
+        .from("products")
+        .update({ stock: nextStock, updated_at: new Date().toISOString() })
+        .eq("id", item.product_id)
+        .gte("stock", item.quantity);
+      if (stockError) {
+        return json({ error: stockError.message || "No se pudo reservar stock" }, 409);
+      }
+    }
+
     const { data: order, error: orderError } = await admin
       .from("orders")
       .insert({
@@ -83,7 +112,7 @@ Deno.serve(async (req) => {
         payment_notes: body.payment_notes ? String(body.payment_notes).slice(0, 500) : null,
         total_amount: total,
         status: "pending",
-        items: body.items,
+        items,
       })
       .select("id")
       .single();
@@ -101,11 +130,11 @@ Deno.serve(async (req) => {
         pending: `${siteUrl}/?payment=pending`,
       },
       auto_return: "approved",
-      items: body.items.map((item) => ({
+      items: items.map((item) => ({
         id: String(item.product_id),
         title: item.product_name,
-        quantity: Number(item.quantity),
-        unit_price: Number(item.unit_price),
+        quantity: item.quantity,
+        unit_price: item.unit_price,
         currency_id: "ARS",
       })),
       payer: { email: user.email },
@@ -122,6 +151,13 @@ Deno.serve(async (req) => {
 
     const mpData = await mpRes.json();
     if (!mpRes.ok) {
+      for (const item of items) {
+        const product = byId.get(item.product_id);
+        await admin
+          .from("products")
+          .update({ stock: Number(product?.stock), updated_at: new Date().toISOString() })
+          .eq("id", item.product_id);
+      }
       await admin.from("orders").update({ status: "failed" }).eq("id", order.id);
       return json({ error: "Mercado Pago rechazó la preferencia", details: mpData }, 502);
     }
