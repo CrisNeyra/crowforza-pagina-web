@@ -24,6 +24,11 @@ Seguridad:
 - Solo `SUPABASE_URL` y `SUPABASE_ANON_KEY` publicas.
 - API keys de n8n/LLM/email van en credenciales de n8n.
 - RLS habilitado en tablas.
+- Newsletter/contacto: solo `INSERT` desde cliente; **sin SELECT/UPDATE** (updates vía service role / n8n).
+- Pedidos: se crean con `status = pending`; `paid` solo vía `mp-webhook`.
+- Rate limit server-side: Edge Function `submit-form` + tabla `form_rate_limits`.
+- Hardening idempotente: `supabase/security_hardening.sql`.
+- Checklist 10/10: [`docs/security-checklist.md`](security-checklist.md).
 
 ## 3) Cambios de codigo aplicados en este repo
 
@@ -55,17 +60,19 @@ Ejecutar en este orden:
 1. `supabase/schema.sql`
 2. `supabase/automation_mvp.sql`
 
-Nota: las politicas del MVP permiten insert/update anon para newsletter y insert anon para contacto (pensado para sitio publico).
+Nota: las politicas del MVP permiten `INSERT` anon para newsletter y contacto (sitio publico).
+**No** hay `SELECT` ni `UPDATE` para clientes en esas tablas.
+Los `UPDATE` de newsletter/orders/contacto deben hacerse con **service role** desde n8n, no desde el browser.
+Después del MVP, corré siempre `supabase/security_hardening.sql`.
 
 ## 5) Configuracion paso a paso (Supabase + n8n + email + LLM)
 
 ### A. Supabase
 
-1. En `js/supabase-config.js`, completar:
-   - `window.SUPABASE_URL`
-   - `window.SUPABASE_ANON_KEY`
-2. Ejecutar SQL de `schema.sql` y `automation_mvp.sql`.
-3. En Supabase -> Database Webhooks, crear 3 webhooks:
+1. Configurá `.env` con `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` (ver `docs/supabase-setup.md`).
+2. Ejecutar SQL: `schema.sql` → `automation_mvp.sql` → `security_hardening.sql`.
+3. Deploy Edge Functions: `create-checkout`, `mp-webhook`, `submit-form --no-verify-jwt`.
+4. En Supabase -> Database Webhooks, crear 3 webhooks:
    - `contact_messages` on `INSERT` -> URL webhook n8n (workflow contacto)
    - `newsletter_subscribers` on `INSERT` -> URL webhook n8n (workflow newsletter)
    - `orders` on `INSERT` -> URL webhook n8n (workflow pedidos)
@@ -143,4 +150,5 @@ Nodos:
 
 ## 7) Siguiente mejora recomendada
 
-Mover inserciones de contacto/newsletter a una **Supabase Edge Function** con captcha (Cloudflare Turnstile o hCaptcha) para anti-spam robusto server-side.
+Agregar captcha (Cloudflare Turnstile o hCaptcha) en `submit-form` para anti-spam adicional.
+Ver checklist completo: [`docs/security-checklist.md`](security-checklist.md).

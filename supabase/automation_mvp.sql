@@ -36,14 +36,15 @@ create policy "anon_insert_contact_messages"
 on public.contact_messages
 for insert
 to anon, authenticated
-with check (true);
+with check (
+    full_name is not null
+    and email is not null
+    and message is not null
+);
 
+-- Sin SELECT/UPDATE para clientes: lecturas y updates solo con service role (n8n / Dashboard).
 drop policy if exists "authenticated_select_contact_messages" on public.contact_messages;
-create policy "authenticated_select_contact_messages"
-on public.contact_messages
-for select
-to authenticated
-using (true);
+drop policy if exists "authenticated_update_contact_messages" on public.contact_messages;
 
 -- ===============================
 -- NEWSLETTER SUBSCRIBERS
@@ -67,26 +68,18 @@ create index if not exists idx_newsletter_status_created
 alter table public.newsletter_subscribers enable row level security;
 
 drop policy if exists "anon_upsert_newsletter_subscribers" on public.newsletter_subscribers;
+drop policy if exists "anon_insert_newsletter_subscribers" on public.newsletter_subscribers;
 create policy "anon_insert_newsletter_subscribers"
 on public.newsletter_subscribers
 for insert
 to anon, authenticated
-with check (true);
+with check (email is not null);
 
+-- IMPORTANTE: no permitir UPDATE/SELECT desde el cliente.
+-- Cambios de estado (unsubscribe, bounce, segmentación) solo con service role (n8n).
 drop policy if exists "anon_update_newsletter_subscribers" on public.newsletter_subscribers;
-create policy "anon_update_newsletter_subscribers"
-on public.newsletter_subscribers
-for update
-to anon, authenticated
-using (true)
-with check (true);
-
 drop policy if exists "authenticated_select_newsletter_subscribers" on public.newsletter_subscribers;
-create policy "authenticated_select_newsletter_subscribers"
-on public.newsletter_subscribers
-for select
-to authenticated
-using (true);
+drop policy if exists "authenticated_update_newsletter_subscribers" on public.newsletter_subscribers;
 
 -- ===============================
 -- ORDERS: campos opcionales para estado IA

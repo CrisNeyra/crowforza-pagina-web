@@ -196,19 +196,21 @@ function initSearch() {
             searchResults.innerHTML = `
                 <div class="search-no-results">
                     <i class="fa-solid fa-search"></i>
-                    <p>No se encontraron resultados para "${query}"</p>
+                    <p>No se encontraron resultados para "<span data-query></span>"</p>
                 </div>
             `;
+            const queryNode = searchResults.querySelector('[data-query]');
+            if (queryNode) queryNode.textContent = query;
         } else {
             searchResults.innerHTML = results
                 .map(
                     (product) => `
-                    <div class="search-result-item" data-id="${product.id}">
-                        <img src="${product.image}" alt="${product.name}" class="search-result-image">
+                    <div class="search-result-item" data-id="${Number(product.id)}">
+                        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" class="search-result-image">
                         <div class="search-result-info">
                             <h4>${highlightMatch(product.name, query)}</h4>
-                            <span class="category">${capitalize(product.category)}</span>
-                            <span class="price">$${product.price.toLocaleString('es-AR')}</span>
+                            <span class="category">${escapeHtml(capitalize(product.category))}</span>
+                            <span class="price">$${Number(product.price).toLocaleString('es-AR')}</span>
                         </div>
                     </div>
                 `
@@ -227,7 +229,15 @@ function initSearch() {
     }
 
     function highlightMatch(text, query) {
-        return text.replace(new RegExp(`(${query})`, 'gi'), '<mark>$1</mark>');
+        const safeText = escapeHtml(text);
+        const terms = String(query)
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .map(escapeRegExp);
+        if (!terms.length) return safeText;
+        const pattern = new RegExp(`(${terms.join('|')})`, 'gi');
+        return safeText.replace(pattern, '<mark>$1</mark>');
     }
 
     function hideSearchResults() {
@@ -793,20 +803,21 @@ function openOrdersModal() {
 
     const orders = JSON.parse(localStorage.getItem('crowforza_orders') || '[]');
     if (!orders.length) {
-        list.innerHTML = '<p class="orders-empty">Aún no tenés pedidos confirmados en este dispositivo.</p>';
+        list.innerHTML = '<p class="orders-empty">Aún no tenés pedidos en este dispositivo.</p>';
     } else {
         list.innerHTML = [...orders]
             .reverse()
             .map((order, index) => {
                 const date = order.created_at ? new Date(order.created_at).toLocaleString('es-AR') : '—';
                 const total = Number(order.total_amount || 0).toLocaleString('es-AR');
+                const status = escapeHtml(order.status || 'pending');
                 return `
                     <article class="order-card">
                         <div class="order-card__head">
                             <strong>Pedido #${orders.length - index}</strong>
-                            <span class="order-card__date">${date}</span>
+                            <span class="order-card__date">${escapeHtml(date)}</span>
                         </div>
-                        <p class="order-card__meta">${order.payment_method || '—'} · $${total}</p>
+                        <p class="order-card__meta">${escapeHtml(order.payment_method || '—')} · $${total} · ${status}</p>
                     </article>
                 `;
             })
@@ -834,7 +845,11 @@ async function registerUser(email, password) {
         return;
     }
     currentUser = { email, id: cryptoRandomId() };
-    localStorage.setItem(LS_KEYS.user, JSON.stringify({ ...currentUser, password }));
+    const passwordHash = await hashLocalPassword(email, password);
+    localStorage.setItem(
+        LS_KEYS.user,
+        JSON.stringify({ id: currentUser.id, email: currentUser.email, passwordHash })
+    );
     showToast('Cuenta creada en modo local.', 'success');
 }
 
@@ -848,7 +863,18 @@ async function signInUser(email, password) {
     }
 
     const localUser = JSON.parse(localStorage.getItem(LS_KEYS.user) || 'null');
-    if (!localUser || localUser.email !== email || localUser.password !== password) {
+    if (!localUser || localUser.email !== email) {
+        throw new Error('Credenciales incorrectas en modo local.');
+    }
+
+    // Migración: cuentas viejas guardaban la contraseña en texto plano.
+    if (localUser.password && !localUser.passwordHash) {
+        localStorage.removeItem(LS_KEYS.user);
+        throw new Error('Tu cuenta local antigua se invalidó por seguridad. Registrate de nuevo.');
+    }
+
+    const passwordHash = await hashLocalPassword(email, password);
+    if (localUser.passwordHash !== passwordHash) {
         throw new Error('Credenciales incorrectas en modo local.');
     }
     currentUser = { id: localUser.id, email: localUser.email };
@@ -866,7 +892,19 @@ async function signOutUser() {
 
 function getLocalUser() {
     const localUser = JSON.parse(localStorage.getItem(LS_KEYS.user) || 'null');
-    if (!localUser) return null;
+    if (!localUser?.email) return null;
+
+    // Nunca devolver ni persistir contraseñas en texto plano.
+    if (localUser.password) {
+        const { password, ...safeUser } = localUser;
+        if (safeUser.passwordHash) {
+            localStorage.setItem(LS_KEYS.user, JSON.stringify(safeUser));
+        } else {
+            localStorage.removeItem(LS_KEYS.user);
+            return null;
+        }
+    }
+
     return { id: localUser.id, email: localUser.email };
 }
 
@@ -917,12 +955,13 @@ function initCheckoutModal() {
             customer_email: currentUser?.email || null,
             customer_id: currentUser?.id || null,
             created_at: new Date().toISOString(),
-            status: 'paid'
+            // Sin pasarela aún: el pedido queda pendiente hasta confirmación real de pago.
+            status: 'pending'
         };
 
         try {
             await persistOrder(payload);
-            showToast('Pago confirmado. ¡Gracias por tu compra!', 'success');
+            showToast('Pedido registrado. Queda pendiente de confirmación de pago.', 'success');
             cart = [];
             saveCartToStorage();
             renderCart();
@@ -931,7 +970,7 @@ function initCheckoutModal() {
             form.reset();
         } catch (error) {
             console.error(error);
-            showToast('No se pudo registrar el pago.', 'error');
+            showToast('No se pudo registrar el pedido.', 'error');
         }
     });
 }
@@ -1198,16 +1237,33 @@ function showToast(message, type = 'info') {
     if (!container) return;
 
     const icons = { success: 'fa-check', error: 'fa-xmark', info: 'fa-info' };
+    const iconClass = icons[type] || icons.info;
+
     const toast = document.createElement('div');
     toast.className = `toast toast--${type}`;
-    toast.innerHTML = `
-        <div class="toast__icon"><i class="fa-solid ${icons[type] || icons.info}"></i></div>
-        <span class="toast__message">${message}</span>
-        <button class="toast__close"><i class="fa-solid fa-xmark"></i></button>
-    `;
+
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'toast__icon';
+    const icon = document.createElement('i');
+    icon.className = `fa-solid ${iconClass}`;
+    iconWrap.appendChild(icon);
+
+    const text = document.createElement('span');
+    text.className = 'toast__message';
+    text.textContent = message;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast__close';
+    closeBtn.type = 'button';
+    closeBtn.setAttribute('aria-label', 'Cerrar notificación');
+    const closeIcon = document.createElement('i');
+    closeIcon.className = 'fa-solid fa-xmark';
+    closeBtn.appendChild(closeIcon);
+
+    toast.append(iconWrap, text, closeBtn);
     container.appendChild(toast);
 
-    toast.querySelector('.toast__close').addEventListener('click', () => removeToast(toast));
+    closeBtn.addEventListener('click', () => removeToast(toast));
     setTimeout(() => removeToast(toast), 4000);
 }
 
@@ -1339,6 +1395,33 @@ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+async function hashLocalPassword(email, password) {
+    const payload = `${String(email).trim().toLowerCase()}:${password}:crowforza-local-v1`;
+    const data = new TextEncoder().encode(payload);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(digest))
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('');
+}
+
 function cryptoRandomId() {
-    return Math.random().toString(36).slice(2, 11);
+    if (window.crypto?.getRandomValues) {
+        const bytes = new Uint8Array(8);
+        window.crypto.getRandomValues(bytes);
+        return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+    }
+    return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 9)}`;
 }

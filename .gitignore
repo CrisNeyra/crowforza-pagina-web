@@ -1,15 +1,32 @@
 ﻿# Dependencias
 node_modules/
-package-lock.json
 yarn.lock
+
+# Build / test
+dist/
+coverage/
+playwright-report/
+test-results/
+blob-report/
 
 # Variables de entorno
 .env
 .env.local
 .env.*.local
 
+# Deploy local de Vercel (no versionar)
+.vercel/
+
 # n8n
 n8n_data/
+scripts/start-n8n.local.cmd
+
+# Supabase CLI local
+supabase/.temp/
+
+# Carpetas accidentales / legacy anidados
+pagina-web-herramientas/
+
 
 # IDEs
 .vscode/

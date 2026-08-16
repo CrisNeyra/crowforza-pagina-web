@@ -1,0 +1,31 @@
+{
+  "name": "crowforza-web",
+  "version": "2.0.0",
+  "private": true,
+  "description": "CROWFORZA — tienda de herramientas (Vite + TypeScript)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "lint": "tsc --noEmit",
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "optimize:brands": "node scripts/optimize-brands.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.0",
+    "@types/node": "^22.13.10",
+    "jsdom": "^26.0.0",
+    "sharp": "^0.35.3",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2",
+    "vitest": "^3.0.9"
+  }
+}

@@ -1,4 +1,5 @@
-// Configuración pública de Supabase (cliente)
-// Reemplaza estos valores por los de tu proyecto.
-window.SUPABASE_URL = 'https://TU-PROYECTO.supabase.co';
-window.SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
+// LEGACY — la app ahora usa Vite + `src/config.ts` + variables `VITE_*`.
+// Este archivo queda solo como referencia. No lo cargues desde index.html.
+console.warn(
+  "[CROWFORZA] js/supabase-config.js está deprecado. Configurá VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en .env"
+);

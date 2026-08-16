@@ -1,0 +1,13 @@
+﻿{
+  "name": "pagina-web-herramientas",
+  "version": "1.0.0",
+  "description": "Página web con herramientas, formularios y automatización",
+  "main": "index.js",
+  "scripts": {
+    "start": "python -m http.server 3000 --directory public",
+    "dev": "python -m http.server 3000 --directory public"
+  },
+  "keywords": ["n8n", "supabase", "whatsapp", "automation"],
+  "author": "CrisNeyra",
+  "license": "MIT"
+}

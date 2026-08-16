@@ -1,0 +1,114 @@
+{
+  "name": "CROWFORZA - Contact AI Reply",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crowforza-contact",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-contact",
+      "name": "Webhook Contact",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "email",
+              "name": "email",
+              "value": "={{ $json.record.email }}",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "={{ $json.record.message }}",
+              "type": "string"
+            },
+            {
+              "id": "id",
+              "name": "id",
+              "value": "={{ $json.record.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-fields",
+      "name": "Normalizar payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const message = String($json.message || '');\nlet category = 'general';\nif (/precio|cotiz|presupuesto/i.test(message)) category = 'pricing';\nif (/envio|entrega|shipping/i.test(message)) category = 'shipping';\nif (/garant|devol/i.test(message)) category = 'support';\nconst ai_response = `Hola, gracias por escribir a CROWFORZA. Recibimos tu consulta (${category}) y te responderemos a la brevedad.`;\nreturn [{ json: { ...($json), category, ai_response, status: 'answered' } }];"
+      },
+      "id": "classify",
+      "name": "Clasificar + respuesta MVP",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $env.SUPABASE_API_URL }}/rest/v1/contact_messages?id=eq.{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"status\": \"{{ $json.status }}\",\n  \"category\": \"{{ $json.category }}\",\n  \"ai_response\": {{ JSON.stringify($json.ai_response) }}\n}",
+        "options": {}
+      },
+      "id": "update-supabase",
+      "name": "Update Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1040, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Contact": {
+      "main": [[{ "node": "Normalizar payload", "type": "main", "index": 0 }]]
+    },
+    "Normalizar payload": {
+      "main": [[{ "node": "Clasificar + respuesta MVP", "type": "main", "index": 0 }]]
+    },
+    "Clasificar + respuesta MVP": {
+      "main": [[{ "node": "Update Supabase", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "description": "MVP: webhook Supabase → clasifica mensaje → actualiza contact_messages. Importar en n8n."
+  }
+}
