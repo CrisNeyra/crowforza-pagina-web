@@ -72,3 +72,11 @@ export function quoteCartAgainstCatalog(
   const total = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
   return { items, total };
 }
+
+export function countProductsByCategory(productList: Product[], categoryId: string): number {
+  return productList.filter((product) => product.category === categoryId).length;
+}
+
+export function describeStockChange(name: string, from: number, to: number): string {
+  return `${name}: stock ${from} → ${to}`;
+}

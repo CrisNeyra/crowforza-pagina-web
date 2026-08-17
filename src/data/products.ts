@@ -289,11 +289,11 @@ export const products: Product[] = [
 
 // Categorías disponibles
 export const categories: Category[] = [
-    { id: "martillos", name: "Martillos", icon: "fa-hammer", count: 45 },
-    { id: "destornilladores", name: "Destornilladores", icon: "fa-screwdriver", count: 78 },
-    { id: "llaves", name: "Llaves", icon: "fa-wrench", count: 92 },
-    { id: "alicates", name: "Alicates", icon: "fa-pliers", count: 56 },
-    { id: "medicion", name: "Medición", icon: "fa-ruler-combined", count: 34 },
-    { id: "sierras", name: "Sierras", icon: "fa-saw", count: 28 }
+    { id: "martillos", name: "Martillos", icon: "fa-hammer", count: 0, image: "/assets/categories/martillos.webp" },
+    { id: "destornilladores", name: "Destornilladores", icon: "fa-screwdriver", count: 0, image: "/assets/categories/destornilladores.webp" },
+    { id: "llaves", name: "Llaves", icon: "fa-wrench", count: 0, image: "/assets/categories/llaves.webp" },
+    { id: "alicates", name: "Alicates", icon: "fa-pliers", count: 0, image: "/assets/categories/alicates.webp" },
+    { id: "medicion", name: "Medición", icon: "fa-ruler-combined", count: 0, image: "/assets/categories/medicion.webp" },
+    { id: "sierras", name: "Sierras", icon: "fa-saw", count: 0, image: "/assets/categories/sierras.webp" }
 ];
 

@@ -21,6 +21,7 @@ export interface Category {
   name: string;
   icon: string;
   count: number;
+  image?: string;
 }
 
 export interface CartItem {

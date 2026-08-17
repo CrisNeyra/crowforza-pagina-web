@@ -40,6 +40,32 @@ test("Nosotros tiene carrusel y el hero no usa el MP4 de 38MB", async ({ page })
   await expect(page.locator(".about__watermark")).toBeVisible();
 });
 
+test("el menú sigue el orden Inicio → Nosotros → Categorías → Catálogo → Contacto", async ({ page }) => {
+  await page.goto("/");
+  const hrefs = await page.locator("#nav-menu .nav__link").evaluateAll((links) =>
+    links.map((link) => (link as HTMLAnchorElement).getAttribute("href"))
+  );
+  expect(hrefs).toEqual(["#home", "#about", "#categories", "#catalog", "#contact"]);
+});
+
+test("búsqueda sin resultados muestra CTA al catálogo", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#search-input").fill("zzzznoexiste999");
+  await page.locator("#search-btn").click();
+  await expect(page.locator(".search-no-results")).toBeVisible();
+  await expect(page.locator(".search-no-results [data-catalog-cta]")).toContainText("Ver catálogo");
+});
+
+test("card sin stock muestra overlay si hay un producto agotado", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#catalog").scrollIntoViewIfNeeded();
+  const oos = page.locator(".product-card--out");
+  if ((await oos.count()) > 0) {
+    await expect(oos.first().locator(".product-card__oos-overlay")).toHaveText(/Sin stock/i);
+    await expect(oos.first().locator('[data-action="add-cart"]')).toBeDisabled();
+  }
+});
+
 test("formulario de contacto tiene campos requeridos", async ({ page }) => {
   await page.goto("/#contact");
   await page.locator("#contact-form").scrollIntoViewIfNeeded();

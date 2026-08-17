@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="CROWFORZA — herramientas manuales profesionales. Catálogo, carrito, auth y checkout con Supabase.">
-    <meta name="theme-color" content="#1a1a1a">
+    <meta name="theme-color" content="#ffffff">
     <meta name="robots" content="index,follow">
 
     <title>CROWFORZA | Herramientas Manuales Profesionales</title>
@@ -15,12 +15,12 @@
     <meta property="og:site_name" content="CROWFORZA">
     <meta property="og:title" content="CROWFORZA | Herramientas Manuales Profesionales">
     <meta property="og:description" content="Tienda de herramientas profesionales: catálogo, carrito y checkout seguro.">
-    <meta property="og:image" content="/assets/logo-crowforza.jpg">
+    <meta property="og:image" content="/assets/logo-crowforza.webp">
 
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="CROWFORZA | Herramientas Manuales Profesionales">
     <meta name="twitter:description" content="Tienda de herramientas profesionales: catálogo, carrito y checkout seguro.">
-    <meta name="twitter:image" content="/assets/logo-crowforza.jpg">
+    <meta name="twitter:image" content="/assets/logo-crowforza.webp">
 
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
@@ -38,9 +38,12 @@
     <!-- Header -->
     <header class="header" id="header">
         <nav class="nav container">
-            <a href="#" class="nav__logo">
+            <a href="#home" class="nav__logo">
                 <span class="logo-crow">CROW</span><span class="logo-forza">FORZA</span>
-                <img src="assets/logo-crowforza.jpg" alt="CROWFORZA Logo" class="logo-icon">
+                <picture>
+                    <source srcset="/assets/logo-crowforza.webp" type="image/webp">
+                    <img src="/assets/logo-crowforza.jpg" alt="CROWFORZA Logo" class="logo-icon">
+                </picture>
             </a>
 
             <div class="nav__menu" id="nav-menu">
@@ -49,13 +52,13 @@
                         <a href="#home" class="nav__link active">Inicio</a>
                     </li>
                     <li class="nav__item">
-                        <a href="#catalog" class="nav__link">Catálogo</a>
+                        <a href="#about" class="nav__link">Nosotros</a>
                     </li>
                     <li class="nav__item">
                         <a href="#categories" class="nav__link">Categorías</a>
                     </li>
                     <li class="nav__item">
-                        <a href="#about" class="nav__link">Nosotros</a>
+                        <a href="#catalog" class="nav__link">Catálogo</a>
                     </li>
                     <li class="nav__item">
                         <a href="#contact" class="nav__link">Contacto</a>
@@ -82,11 +85,6 @@
                         <button type="button" class="nav-user__item nav-user__item--danger" id="nav-user-logout" role="menuitem"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
                     </div>
                 </div>
-
-                <!-- Theme Toggle -->
-                <button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">
-                    <i class="fa-solid fa-moon" id="theme-icon"></i>
-                </button>
 
                 <!-- Cart -->
                 <button class="cart-btn" id="cart-btn" type="button" aria-label="Abrir carrito">
@@ -230,12 +228,9 @@
             <div class="container">
                 <!-- Header con Badge -->
                 <div class="about__header">
-                    <div class="about__badge">
-                        <span class="about__badge-number">15+</span>
-                        <span class="about__badge-text">Años de Trayectoria</span>
-                    </div>
                     <div class="about__header-text">
                         <span class="section__subtitle">Nuestra Historia</span>
+                        <p class="about__badge-text">Más de 15 años de trayectoria</p>
                         <h2 class="section__title">Forjados en la Resiliencia, Guiados por la Convicción</h2>
                     </div>
                 </div>
@@ -313,79 +308,7 @@
                     <h2 class="section__title">Categorías</h2>
                 </div>
 
-                <div class="categories__grid">
-                    <div class="category-card" data-category="martillos">
-                        <div class="category-card__image">
-                            <img src="/assets/categories/martillos.webp" alt="Martillos" loading="lazy" decoding="async" width="400" height="300">
-                            <div class="category-card__overlay"></div>
-                        </div>
-                        <div class="category-card__content">
-                            <i class="fa-solid fa-hammer"></i>
-                            <h3>Martillos</h3>
-                            <span>45 productos</span>
-                        </div>
-                    </div>
-
-                    <div class="category-card" data-category="destornilladores">
-                        <div class="category-card__image">
-                            <img src="/assets/categories/destornilladores.webp" alt="Destornilladores" loading="lazy" decoding="async" width="400" height="300">
-                            <div class="category-card__overlay"></div>
-                        </div>
-                        <div class="category-card__content">
-                            <i class="fa-solid fa-screwdriver"></i>
-                            <h3>Destornilladores</h3>
-                            <span>78 productos</span>
-                        </div>
-                    </div>
-
-                    <div class="category-card" data-category="llaves">
-                        <div class="category-card__image">
-                            <img src="/assets/categories/llaves.webp" alt="Llaves" loading="lazy" decoding="async" width="400" height="300">
-                            <div class="category-card__overlay"></div>
-                        </div>
-                        <div class="category-card__content">
-                            <i class="fa-solid fa-wrench"></i>
-                            <h3>Llaves</h3>
-                            <span>92 productos</span>
-                        </div>
-                    </div>
-
-                    <div class="category-card" data-category="alicates">
-                        <div class="category-card__image">
-                            <img src="/assets/categories/alicates.webp" alt="Alicates" loading="lazy" decoding="async" width="400" height="300">
-                            <div class="category-card__overlay"></div>
-                        </div>
-                        <div class="category-card__content">
-                            <i class="fa-solid fa-pliers"></i>
-                            <h3>Alicates</h3>
-                            <span>56 productos</span>
-                        </div>
-                    </div>
-
-                    <div class="category-card" data-category="medicion">
-                        <div class="category-card__image">
-                            <img src="/assets/categories/medicion.webp" alt="Medición" loading="lazy" decoding="async" width="400" height="300">
-                            <div class="category-card__overlay"></div>
-                        </div>
-                        <div class="category-card__content">
-                            <i class="fa-solid fa-ruler-combined"></i>
-                            <h3>Medición</h3>
-                            <span>34 productos</span>
-                        </div>
-                    </div>
-
-                    <div class="category-card" data-category="sierras">
-                        <div class="category-card__image">
-                            <img src="/assets/categories/sierras.webp" alt="Sierras" loading="lazy" decoding="async" width="400" height="300">
-                            <div class="category-card__overlay"></div>
-                        </div>
-                        <div class="category-card__content">
-                            <i class="fa-solid fa-saw"></i>
-                            <h3>Sierras</h3>
-                            <span>28 productos</span>
-                        </div>
-                    </div>
-                </div>
+                <div class="categories__grid" id="categories-grid"></div>
             </div>
         </section>
 
@@ -541,36 +464,11 @@
 
                 <div class="contact__grid">
                     <div class="contact__info">
-                        <div class="contact__card">
-                            <div class="contact__card-icon">
-                                <i class="fa-solid fa-location-dot"></i>
-                            </div>
-                            <div class="contact__card-content">
-                                <h4>Dirección</h4>
-                                <p>Buenos Aires, Argentina<br>Atención online a todo el país</p>
-                            </div>
+                        <div class="contact__details">
+                            <p><strong>Dirección</strong>Buenos Aires, Argentina. Atención online a todo el país.</p>
+                            <p><strong>Teléfono</strong>+54 11 7821-1489 · Lun - Vie: 9:00 - 18:00 (ART)</p>
+                            <p><strong>Email</strong>info@crowforza.com · soporte@crowforza.com</p>
                         </div>
-
-                        <div class="contact__card">
-                            <div class="contact__card-icon">
-                                <i class="fa-solid fa-phone"></i>
-                            </div>
-                            <div class="contact__card-content">
-                                <h4>Teléfono</h4>
-                                <p>+54 11 7821-1489<br>Lun - Vie: 9:00 - 18:00 (ART)</p>
-                            </div>
-                        </div>
-
-                        <div class="contact__card">
-                            <div class="contact__card-icon">
-                                <i class="fa-solid fa-envelope"></i>
-                            </div>
-                            <div class="contact__card-content">
-                                <h4>Email</h4>
-                                <p>info@crowforza.com<br>soporte@crowforza.com</p>
-                            </div>
-                        </div>
-
                         <div class="contact__social">
                             <h4>Síguenos</h4>
                             <div class="social-links">
@@ -630,7 +528,10 @@
                 <div class="footer__brand">
                     <a href="#" class="footer__logo">
                         <span class="logo-crow">CROW</span><span class="logo-forza">FORZA</span>
-                        <img src="assets/logo-crowforza.jpg" alt="CROWFORZA Logo" class="logo-icon logo-icon--footer">
+                        <picture>
+                            <source srcset="/assets/logo-crowforza.webp" type="image/webp">
+                            <img src="/assets/logo-crowforza.jpg" alt="CROWFORZA Logo" class="logo-icon logo-icon--footer">
+                        </picture>
                     </a>
                     <p class="footer__description">
                         Tu tienda de confianza para herramientas manuales de calidad profesional. 
@@ -648,9 +549,9 @@
                     <h4>Enlaces Rápidos</h4>
                     <ul>
                         <li><a href="#home">Inicio</a></li>
-                        <li><a href="#catalog">Catálogo</a></li>
-                        <li><a href="#categories">Categorías</a></li>
                         <li><a href="#about">Nosotros</a></li>
+                        <li><a href="#categories">Categorías</a></li>
+                        <li><a href="#catalog">Catálogo</a></li>
                         <li><a href="#contact">Contacto</a></li>
                     </ul>
                 </div>

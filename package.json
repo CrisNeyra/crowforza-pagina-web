@@ -14,6 +14,7 @@
     "test:e2e": "playwright test",
     "lint": "tsc --noEmit",
     "optimize:images": "node scripts/optimize-images.mjs",
+    "optimize:logo": "node scripts/optimize-logo.mjs",
     "optimize:brands": "node scripts/optimize-brands.mjs",
     "optimize:videos": "node scripts/optimize-videos.mjs"
   },

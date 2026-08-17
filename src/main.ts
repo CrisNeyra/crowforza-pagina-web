@@ -9,7 +9,8 @@ import {
     supabaseUrl,
 } from "./config";
 import { products as fallbackProducts } from "./data/products";
-import { mapDbProduct, quoteCartAgainstCatalog } from "./lib/catalog";
+import { categories as fallbackCategories } from "./data/products";
+import { countProductsByCategory, describeStockChange, mapDbProduct, quoteCartAgainstCatalog } from "./lib/catalog";
 import {
     addToCartState,
     calculateCartCount,
@@ -40,14 +41,20 @@ let currentUser = null;
 let isLoginMode = false;
 /** @type {import("./types/product").Product[]} */
 let catalogProducts = fallbackProducts.map((product) => ({ ...product }));
+let catalogCategories = fallbackCategories.map((category) => ({
+    ...category,
+    count: countProductsByCategory(fallbackProducts, category.id),
+    image: `/assets/categories/${category.id}.webp`,
+}));
 let isAdminUser = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    initTheme();
+    forceLightTheme();
     initNavigation();
     initSearch();
     initCatalog();
     initFilters();
+    renderCategories();
     initModal();
     initCartDrawer();
     initAuthModal();
@@ -65,7 +72,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadCartFromStorage();
     await initSupabase();
     await loadCatalogFromSupabase();
+    await loadCategoriesFromSupabase();
     await refreshAdminStatus();
+    renderCategories();
     renderProducts();
     updateUserIndicator();
     notifyPaymentReturn();
@@ -127,6 +136,54 @@ async function loadCatalogFromSupabase() {
         return;
     }
     catalogProducts = data.map((row) => mapDbProduct(row));
+    catalogCategories = catalogCategories.map((category) => ({
+        ...category,
+        count: countProductsByCategory(catalogProducts, category.id),
+    }));
+}
+
+async function loadCategoriesFromSupabase() {
+    if (!supabaseClient) return;
+    const { data, error } = await supabaseClient
+        .from('categories')
+        .select('id, name, icon, image, sort_order')
+        .order('sort_order', { ascending: true });
+    if (error || !data?.length) {
+        if (error) console.warn('Categorías DB no disponibles, se usa el local.', error.message);
+        catalogCategories = catalogCategories.map((category) => ({
+            ...category,
+            count: countProductsByCategory(catalogProducts, category.id),
+        }));
+        return;
+    }
+    catalogCategories = data.map((row) => ({
+        id: row.id,
+        name: row.name,
+        icon: row.icon,
+        image: row.image,
+        count: countProductsByCategory(catalogProducts, row.id),
+    }));
+}
+
+function renderCategories() {
+    const grid = document.getElementById('categories-grid');
+    if (!grid) return;
+    grid.innerHTML = catalogCategories
+        .map(
+            (category) => `
+        <div class="category-card" data-category="${escapeHtml(category.id)}">
+            <div class="category-card__image">
+                <img src="${escapeHtml(category.image || `/assets/categories/${category.id}.webp`)}" alt="${escapeHtml(category.name)}" loading="lazy" decoding="async" width="400" height="300">
+                <div class="category-card__overlay"></div>
+            </div>
+            <div class="category-card__content">
+                <i class="fa-solid ${escapeHtml(category.icon)}"></i>
+                <h3>${escapeHtml(category.name)}</h3>
+                <span>${category.count} producto${category.count === 1 ? '' : 's'}</span>
+            </div>
+        </div>`
+        )
+        .join('');
 }
 
 async function refreshAdminStatus() {
@@ -178,7 +235,7 @@ async function openInventoryModal() {
     list.innerHTML = data
         .map(
             (row) => `
-        <div class="inventory-row" data-id="${row.id}">
+        <div class="inventory-row" data-id="${row.id}" data-name="${escapeHtml(row.name)}" data-stock="${Number(row.stock)}">
             <span class="inventory-row__name">${escapeHtml(row.name)}</span>
             <label>Precio
                 <input type="number" min="0" step="1" class="inventory-price" value="${Number(row.price)}">
@@ -195,22 +252,31 @@ async function saveInventoryEdits() {
     const rows = document.querySelectorAll('#inventory-list .inventory-row');
     if (!rows.length || !supabaseClient) return;
     try {
+        const diffs = [];
         for (const row of rows) {
             const id = Number(row.dataset.id);
+            const name = row.dataset.name || `Producto ${id}`;
+            const oldStock = Number(row.dataset.stock);
             const price = Number(row.querySelector('.inventory-price')?.value);
             const stock = Number(row.querySelector('.inventory-stock')?.value);
             if (!Number.isFinite(price) || price < 0 || !Number.isInteger(stock) || stock < 0) {
                 throw new Error('Precio o stock inválido');
             }
-            const { error } = await supabaseClient
-                .from('products')
-                .update({ price, stock, updated_at: new Date().toISOString() })
-                .eq('id', id);
+            const { data, error } = await supabaseClient.rpc('admin_set_product', {
+                p_id: id,
+                p_price: price,
+                p_stock: stock,
+            });
             if (error) throw error;
+            if (Number.isFinite(oldStock) && oldStock !== stock) {
+                diffs.push(describeStockChange(data?.name || name, data?.old_stock ?? oldStock, data?.new_stock ?? stock));
+            }
         }
         await loadCatalogFromSupabase();
+        await loadCategoriesFromSupabase();
+        renderCategories();
         renderProducts();
-        showToast('Inventario actualizado.', 'success');
+        showToast(diffs.length ? diffs.join(' · ') : 'Inventario actualizado.', 'success');
         document.getElementById('inventory-modal')?.classList.remove('active');
         document.body.style.overflow = '';
     } catch (error) {
@@ -218,33 +284,13 @@ async function saveInventoryEdits() {
     }
 }
 
-// ========== TEMA CLARO/OSCURO ==========
-function initTheme() {
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
-
-    const savedTheme = localStorage.getItem(LS_KEYS.theme);
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
-    } else if (prefersDark) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        updateThemeIcon('dark');
-    }
-
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem(LS_KEYS.theme, newTheme);
-        updateThemeIcon(newTheme);
-    });
-
-    function updateThemeIcon(theme) {
-        themeIcon.classList.toggle('fa-moon', theme !== 'dark');
-        themeIcon.classList.toggle('fa-sun', theme === 'dark');
+// ========== TEMA (solo claro / fondo blanco) ==========
+function forceLightTheme() {
+    document.documentElement.removeAttribute('data-theme');
+    try {
+        localStorage.removeItem(LS_KEYS.theme);
+    } catch {
+        /* ignore */
     }
 }
 
@@ -315,8 +361,8 @@ function initSearch() {
     searchBtn.addEventListener('click', () => {
         const query = searchInput.value.trim();
         if (query.length >= 2) {
-            performSearch(query);
-            scrollToCatalog();
+            const found = performSearch(query);
+            if (found) scrollToCatalog();
         }
     });
 
@@ -324,11 +370,21 @@ function initSearch() {
         if (event.key === 'Enter') {
             const query = searchInput.value.trim();
             if (query.length >= 2) {
-                performSearch(query);
-                scrollToCatalog();
+                const found = performSearch(query);
+                if (found) scrollToCatalog();
                 hideSearchResults();
             }
         }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || document.activeElement?.isContentEditable) {
+            return;
+        }
+        event.preventDefault();
+        searchInput.focus();
     });
 
     document.addEventListener('click', (event) => {
@@ -351,11 +407,25 @@ function initSearch() {
                 <div class="search-no-results">
                     <i class="fa-solid fa-search"></i>
                     <p>No se encontraron resultados para "<span data-query></span>"</p>
+                    <a href="#catalog" class="btn btn--outline" data-catalog-cta>Ver catálogo</a>
                 </div>
             `;
             const queryNode = searchResults.querySelector('[data-query]');
             if (queryNode) queryNode.textContent = query;
-        } else {
+            searchResults.querySelector('[data-catalog-cta]')?.addEventListener('click', (event) => {
+                event.preventDefault();
+                hideSearchResults();
+                currentFilter = 'all';
+                displayedProducts = 8;
+                document.querySelectorAll('.filter-btn').forEach((btn) => {
+                    btn.classList.toggle('active', btn.dataset.filter === 'all');
+                });
+                renderProducts();
+                scrollToCatalog();
+            });
+            searchResults.classList.add('active');
+            return false;
+        }
             searchResults.innerHTML = results
                 .map(
                     (product) => `
@@ -377,9 +447,9 @@ function initSearch() {
                     hideSearchResults();
                 });
             });
-        }
 
         searchResults.classList.add('active');
+        return true;
     }
 
     function hideSearchResults() {
@@ -402,6 +472,25 @@ function renderProducts() {
     let filteredProducts = filterProducts();
     filteredProducts = sortProducts(filteredProducts);
     const productsToShow = filteredProducts.slice(0, displayedProducts);
+
+    if (!filteredProducts.length) {
+        grid.innerHTML = `
+            <div class="catalog-empty">
+                <p>No hay productos para este filtro.</p>
+                <button type="button" class="btn btn--primary" id="catalog-empty-reset">Ver todos</button>
+            </div>`;
+        const loadMoreBtn = document.getElementById('load-more');
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+        document.getElementById('catalog-empty-reset')?.addEventListener('click', () => {
+            currentFilter = 'all';
+            displayedProducts = 8;
+            document.querySelectorAll('.filter-btn').forEach((btn) => {
+                btn.classList.toggle('active', btn.dataset.filter === 'all');
+            });
+            renderProducts();
+        });
+        return;
+    }
 
     grid.innerHTML = productsToShow.map((product) => createProductCard(product)).join('');
 
@@ -450,18 +539,20 @@ function createProductCard(product) {
     const stockHint = outOfStock
         ? '<p class="product-card__stock product-card__stock--out">Sin stock</p>'
         : `<p class="product-card__stock">${product.stock ?? ""} u.</p>`;
+    const overlay = outOfStock ? '<div class="product-card__oos-overlay">Sin stock</div>' : '';
     const addButton = outOfStock
         ? `<button class="product-card__action primary" data-action="add-cart" disabled><i class="fa-solid fa-ban"></i>Sin stock</button>`
         : `<button class="product-card__action primary" data-action="add-cart"><i class="fa-solid fa-cart-plus"></i>Añadir</button>`;
 
     return `
-        <article class="product-card" data-id="${product.id}" data-category="${escapeHtml(product.category)}">
+        <article class="product-card${outOfStock ? ' product-card--out' : ''}" data-id="${product.id}" data-category="${escapeHtml(product.category)}">
             ${badgeHTML}
             <button class="product-card__wishlist" aria-label="Añadir a favoritos">
                 <i class="fa-regular fa-heart"></i>
             </button>
             <div class="product-card__image">
                 <img src="${safeImage}" alt="${safeName}" loading="lazy" decoding="async" width="400" height="400">
+                ${overlay}
                 <div class="product-card__actions">
                     <button class="product-card__action" data-action="quick-view">
                         <i class="fa-regular fa-eye"></i>Ver
@@ -545,15 +636,16 @@ function initFilters() {
         renderProducts();
     });
 
-    document.querySelectorAll('.category-card').forEach((card) => {
-        card.addEventListener('click', () => {
-            const category = card.dataset.category;
-            currentFilter = category;
-            displayedProducts = 8;
-            filterBtns.forEach((btn) => btn.classList.toggle('active', btn.dataset.filter === category));
-            renderProducts();
-            document.getElementById('catalog').scrollIntoView({ behavior: 'smooth' });
-        });
+    const categoriesGrid = document.getElementById('categories-grid');
+    categoriesGrid?.addEventListener('click', (event) => {
+        const card = event.target.closest('.category-card');
+        if (!card) return;
+        const category = card.dataset.category;
+        currentFilter = category;
+        displayedProducts = 8;
+        filterBtns.forEach((btn) => btn.classList.toggle('active', btn.dataset.filter === category));
+        renderProducts();
+        document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
     });
 }
 
@@ -710,7 +802,7 @@ function renderCart() {
     const checkoutBtn = document.getElementById('cart-checkout-btn');
 
     if (!cart.length) {
-        cartItemsContainer.innerHTML = '<p class="cart-empty">Tu carrito está vacío.</p>';
+        cartItemsContainer.innerHTML = '<p class="cart-empty">Tu carrito está vacío.<br><a href="#catalog">Ver catálogo</a></p>';
         cartTotalNode.textContent = '$0';
         checkoutBtn.disabled = true;
         updateCartCount();
@@ -1534,7 +1626,10 @@ function initAboutSlideshow() {
             )
             .join('') +
         `<div class="about__watermark" aria-hidden="true">
-            <img src="/assets/logo-crowforza.jpg" alt="" width="80" height="80" decoding="async">
+            <picture>
+                <source srcset="/assets/logo-crowforza.webp" type="image/webp">
+                <img src="/assets/logo-crowforza.jpg" alt="" width="80" height="80" decoding="async">
+            </picture>
             <span>CROWFORZA</span>
         </div>`;
 

@@ -23,6 +23,7 @@ En **SQL Editor**, ejecutá en este orden:
 2. `supabase/automation_mvp.sql`
 3. `supabase/security_hardening.sql` ← obligatorio para el hardening actual
 4. `supabase/catalog_stock.sql` ← catálogo, stock, RPC `place_order` y tabla `admins`
+5. `supabase/catalog_v2.sql` ← categorías, `stock_movements`, `place_order` con movimientos, `cancel_pending_order` y `admin_set_product`
 
 Los comentarios SQL usan **dos** guiones (`--`). Si ves `syntax error at or near "-"`, te faltó un guión al pegar.
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { quoteCartAgainstCatalog } from "../../src/lib/catalog";
+import { countProductsByCategory, describeStockChange, quoteCartAgainstCatalog } from "../../src/lib/catalog";
+import { products as fallbackProducts } from "../../src/data/products";
 import { validateEmail, validateMediumPassword } from "../../src/lib/validation";
 import { nextOrderStatus, parseMpSignatureHeader, buildMpSignatureManifest } from "../../src/lib/mpWebhook";
 
@@ -41,6 +42,14 @@ describe("catalog quote", () => {
         ]
       )
     ).toThrow(/no disponible/i);
+  });
+
+  it("describe el cambio de stock para el toast de inventario", () => {
+    expect(describeStockChange("Martillo", 24, 20)).toBe("Martillo: stock 24 → 20");
+  });
+
+  it("cuenta productos por categoría", () => {
+    expect(countProductsByCategory(fallbackProducts, "martillos")).toBeGreaterThan(0);
   });
 });
 
