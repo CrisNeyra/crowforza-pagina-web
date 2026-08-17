@@ -25,9 +25,9 @@ test("agrega un producto al carrito desde el catálogo", async ({ page }) => {
 test("WhatsApp apunta al número real y las marcas se ven", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#whatsapp-btn")).toHaveAttribute("href", /wa\.me\/5491178211489/);
-  const dewalt = page.locator('img.brand-logo[alt="DEWALT"]');
-  await expect(dewalt).toBeVisible();
-  const width = await dewalt.evaluate((img: HTMLImageElement) => img.naturalWidth);
+  const bahco = page.locator('img.brand-logo[alt="BAHCO"]');
+  await expect(bahco).toBeVisible();
+  const width = await bahco.evaluate((img: HTMLImageElement) => img.naturalWidth);
   expect(width).toBeGreaterThan(0);
 });
 
