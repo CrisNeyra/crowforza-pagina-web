@@ -1626,11 +1626,11 @@ function initAboutSlideshow() {
             )
             .join('') +
         `<div class="about__watermark" aria-hidden="true">
+            <span class="about__watermark-wordmark"><span class="logo-crow">CROW</span><span class="logo-forza">FORZA</span></span>
             <picture>
                 <source srcset="/assets/logo-crowforza.webp" type="image/webp">
-                <img src="/assets/logo-crowforza.jpg" alt="" width="80" height="80" decoding="async">
+                <img src="/assets/logo-crowforza.jpg" alt="" width="54" height="54" decoding="async">
             </picture>
-            <span>CROWFORZA</span>
         </div>`;
 
     indicatorsContainer.innerHTML = aboutMedia
