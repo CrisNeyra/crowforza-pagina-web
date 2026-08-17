@@ -41,7 +41,7 @@
     --transition-slow: 500ms ease;
     
     /* Espaciado */
-    --header-height: 80px;
+    --header-height: 112px;
     --container-padding: 1.5rem;
     
     /* Z-index */
@@ -230,7 +230,7 @@ ul {
 
 .nav__logo {
     font-family: 'Montserrat', sans-serif;
-    font-size: 2.5rem;
+    font-size: 3.55rem;
     font-weight: 800;
     letter-spacing: -1px;
     display: flex;
@@ -247,14 +247,14 @@ ul {
 
 /* Logo Icon (Image) */
 .logo-icon {
-    width: 72px;
-    height: 72px;
+    width: 102px;
+    height: 102px;
     margin-left: 12px;
     margin-top: 0;
     vertical-align: middle;
     transition: transform var(--transition-normal);
     object-fit: contain;
-    border: 1px solid var(--border-color);
+    border: none;
     outline: none;
     box-shadow: none;
     border-radius: 12px;
@@ -604,7 +604,7 @@ ul {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: calc(var(--header-height) + 8.5rem) 1.5rem 5rem;
+    padding: calc(var(--header-height) + 2.5rem) 1.5rem 4rem;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
     overflow: hidden;
     min-height: 100vh;
@@ -674,6 +674,7 @@ ul {
     justify-content: center;
     text-align: center;
     width: 100%;
+    max-width: 1280px;
     margin-inline: auto;
 }
 
@@ -714,10 +715,10 @@ ul {
 }
 
 .hero__title--large {
-    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-size: clamp(2.8rem, 6.5vw, 4.6rem);
     font-weight: 800;
     letter-spacing: -0.02em;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
 }
 
 .hero__title .highlight {
@@ -755,8 +756,8 @@ ul {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 0.75rem 1rem;
-    max-width: 920px;
+    gap: 1rem 1.25rem;
+    max-width: 1200px;
     width: 100%;
     margin-inline: auto;
 }
@@ -778,9 +779,9 @@ ul {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    flex: 1 1 104px;
-    min-width: 96px;
-    max-width: 128px;
+    flex: 1 1 128px;
+    min-width: 112px;
+    max-width: 160px;
     margin-top: 0;
 }
 
@@ -813,7 +814,7 @@ ul {
 /* Brand Logo Styles — colores originales de cada marca */
 .brand-logo {
     max-width: 100%;
-    max-height: 38px;
+    max-height: 56px;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -878,19 +879,35 @@ ul {
     }
     
     .brand-logo {
-        max-height: 30px;
+        max-height: 44px;
     }
     
     .hero__title--large {
-        font-size: clamp(1.8rem, 6vw, 2.5rem);
+        font-size: clamp(2.1rem, 7vw, 3rem);
     }
 }
 
 .hero__buttons {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 3rem;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.hero .btn {
+    padding: 1rem 2rem;
+    font-size: 1.0625rem;
+}
+
+.hero .btn--outline {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.92);
+}
+
+.hero .btn--outline:hover {
+    color: #ffffff;
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.16);
 }
 
 .hero__stats {
@@ -1927,7 +1944,7 @@ ul {
     height: 64px;
     object-fit: contain;
     border-radius: 12px;
-    border: 1px solid var(--border-color);
+    border: none;
     background: #ffffff;
 }
 
@@ -3173,7 +3190,7 @@ ul {
 
 @media screen and (max-width: 768px) {
     :root {
-        --header-height: 64px;
+        --header-height: 88px;
     }
     
     .nav__menu {
@@ -3235,12 +3252,12 @@ ul {
     }
     
     .logo-icon {
-        width: 48px;
-        height: 48px;
+        width: 68px;
+        height: 68px;
     }
     
     .nav__logo {
-        font-size: 1.25rem;
+        font-size: 1.78rem;
     }
     
     .hero {
